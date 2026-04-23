@@ -82,28 +82,27 @@ const HotelDetail = () => {
     return bookedDates?.some((d) => d.toDateString() === date.toDateString()) || false;
   };
 
-  const handleBook = async () => {
+  const handleBook = () => {
     if (!user) { navigate("/login"); return; }
-    if (!selectedRoom || !checkIn || !checkOut) {
+    if (!selectedRoom || !checkIn || !checkOut || !selectedRoomData) {
       toast.error("Please select a room and dates");
       return;
     }
-    setBooking(true);
-    const { error } = await supabase.from("bookings").insert({
-      user_id: user.id,
-      hotel_id: id!,
-      room_id: selectedRoom,
-      check_in: format(checkIn, "yyyy-MM-dd"),
-      check_out: format(checkOut, "yyyy-MM-dd"),
-      total_price: totalPrice,
+    navigate("/payment", {
+      state: {
+        hotelId: id,
+        hotelName: hotel?.name,
+        hotelLocation: hotel?.location,
+        hotelImage: images[0],
+        roomId: selectedRoom,
+        roomType: selectedRoomData.type,
+        checkIn: format(checkIn, "yyyy-MM-dd"),
+        checkOut: format(checkOut, "yyyy-MM-dd"),
+        nights,
+        pricePerNight: selectedRoomData.price,
+        totalPrice,
+      },
     });
-    setBooking(false);
-    if (error) {
-      toast.error(error.message.includes("already booked") ? "This room is already booked for those dates!" : error.message);
-    } else {
-      toast.success("Booking confirmed! 🎉");
-      navigate("/dashboard");
-    }
   };
 
   if (hotelLoading) {
