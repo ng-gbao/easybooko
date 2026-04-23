@@ -28,7 +28,7 @@ const HotelDetail = () => {
   const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
   const [checkIn, setCheckIn] = useState<Date>();
   const [checkOut, setCheckOut] = useState<Date>();
-  const [booking, setBooking] = useState(false);
+  
   const [mainImage, setMainImage] = useState(0);
 
   const { data: hotel, isLoading: hotelLoading } = useQuery({
