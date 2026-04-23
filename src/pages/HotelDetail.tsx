@@ -28,7 +28,7 @@ const HotelDetail = () => {
   const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
   const [checkIn, setCheckIn] = useState<Date>();
   const [checkOut, setCheckOut] = useState<Date>();
-  const [booking, setBooking] = useState(false);
+  
   const [mainImage, setMainImage] = useState(0);
 
   const { data: hotel, isLoading: hotelLoading } = useQuery({
@@ -82,28 +82,27 @@ const HotelDetail = () => {
     return bookedDates?.some((d) => d.toDateString() === date.toDateString()) || false;
   };
 
-  const handleBook = async () => {
+  const handleBook = () => {
     if (!user) { navigate("/login"); return; }
-    if (!selectedRoom || !checkIn || !checkOut) {
+    if (!selectedRoom || !checkIn || !checkOut || !selectedRoomData) {
       toast.error("Please select a room and dates");
       return;
     }
-    setBooking(true);
-    const { error } = await supabase.from("bookings").insert({
-      user_id: user.id,
-      hotel_id: id!,
-      room_id: selectedRoom,
-      check_in: format(checkIn, "yyyy-MM-dd"),
-      check_out: format(checkOut, "yyyy-MM-dd"),
-      total_price: totalPrice,
+    navigate("/payment", {
+      state: {
+        hotelId: id,
+        hotelName: hotel?.name,
+        hotelLocation: hotel?.location,
+        hotelImage: images[0],
+        roomId: selectedRoom,
+        roomType: selectedRoomData.type,
+        checkIn: format(checkIn, "yyyy-MM-dd"),
+        checkOut: format(checkOut, "yyyy-MM-dd"),
+        nights,
+        pricePerNight: selectedRoomData.price,
+        totalPrice,
+      },
     });
-    setBooking(false);
-    if (error) {
-      toast.error(error.message.includes("already booked") ? "This room is already booked for those dates!" : error.message);
-    } else {
-      toast.success("Booking confirmed! 🎉");
-      navigate("/dashboard");
-    }
   };
 
   if (hotelLoading) {
@@ -272,10 +271,10 @@ const HotelDetail = () => {
               <Button
                 className="w-full"
                 size="lg"
-                disabled={!selectedRoom || !checkIn || !checkOut || booking}
+                disabled={!selectedRoom || !checkIn || !checkOut}
                 onClick={handleBook}
               >
-                {booking ? "Booking..." : user ? "Confirm Booking" : "Sign in to Book"}
+                {user ? "Proceed to Payment" : "Sign in to Book"}
               </Button>
             </CardContent>
           </Card>
