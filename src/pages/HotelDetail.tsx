@@ -271,10 +271,10 @@ const HotelDetail = () => {
               <Button
                 className="w-full"
                 size="lg"
-                disabled={!selectedRoom || !checkIn || !checkOut || booking}
+                disabled={!selectedRoom || !checkIn || !checkOut}
                 onClick={handleBook}
               >
-                {booking ? "Booking..." : user ? "Confirm Booking" : "Sign in to Book"}
+                {user ? "Proceed to Payment" : "Sign in to Book"}
               </Button>
             </CardContent>
           </Card>
