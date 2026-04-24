@@ -44,7 +44,7 @@ function HotelsTab() {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<any>(null);
-  const [form, setForm] = useState({ name: "", location: "", description: "", price_per_night: "", rating: "", amenities: "", images: "" });
+  const [form, setForm] = useState({ name: "", location: "", description: "", price_per_night: "", rating: "", property_type: "hotel", amenities: "", images: "" });
 
   const { data: hotels } = useQuery({
     queryKey: ["admin-hotels"],
@@ -62,6 +62,7 @@ function HotelsTab() {
         description: form.description,
         price_per_night: parseFloat(form.price_per_night),
         rating: parseFloat(form.rating) || 0,
+        property_type: form.property_type,
         amenities: form.amenities.split(",").map((s) => s.trim()).filter(Boolean),
         images: form.images.split(",").map((s) => s.trim()).filter(Boolean),
       };
@@ -95,7 +96,7 @@ function HotelsTab() {
     },
   });
 
-  const resetForm = () => setForm({ name: "", location: "", description: "", price_per_night: "", rating: "", amenities: "", images: "" });
+  const resetForm = () => setForm({ name: "", location: "", description: "", price_per_night: "", rating: "", property_type: "hotel", amenities: "", images: "" });
 
   const openEdit = (h: any) => {
     setEditing(h);
@@ -105,6 +106,7 @@ function HotelsTab() {
       description: h.description || "",
       price_per_night: String(h.price_per_night),
       rating: String(h.rating || ""),
+      property_type: h.property_type || "hotel",
       amenities: (h.amenities || []).join(", "),
       images: (h.images || []).join(", "),
     });
@@ -131,6 +133,15 @@ function HotelsTab() {
                 <Input placeholder="Price/night" type="number" value={form.price_per_night} onChange={(e) => setForm({ ...form, price_per_night: e.target.value })} />
                 <Input placeholder="Rating (0-5)" type="number" step="0.1" value={form.rating} onChange={(e) => setForm({ ...form, rating: e.target.value })} />
               </div>
+              <Select value={form.property_type} onValueChange={(v) => setForm({ ...form, property_type: v })}>
+                <SelectTrigger><SelectValue placeholder="Property type" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="hotel">Hotel</SelectItem>
+                  <SelectItem value="apartment">Apartment</SelectItem>
+                  <SelectItem value="resort">Resort</SelectItem>
+                  <SelectItem value="villa">Villa</SelectItem>
+                </SelectContent>
+              </Select>
               <Input placeholder="Amenities (comma-separated)" value={form.amenities} onChange={(e) => setForm({ ...form, amenities: e.target.value })} />
               <Input placeholder="Image URLs (comma-separated)" value={form.images} onChange={(e) => setForm({ ...form, images: e.target.value })} />
               <Button className="w-full" onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending}>
