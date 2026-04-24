@@ -1,18 +1,21 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
+export type PropertyType = "hotel" | "apartment" | "resort" | "villa";
+
 interface HotelFilters {
   location?: string;
   minPrice?: number;
   maxPrice?: number;
   minRating?: number;
+  propertyType?: PropertyType;
   sortBy?: "price_asc" | "price_desc" | "rating_desc";
   page?: number;
   pageSize?: number;
 }
 
 export const useHotels = (filters: HotelFilters = {}) => {
-  const { location, minPrice, maxPrice, minRating, sortBy = "rating_desc", page = 1, pageSize = 12 } = filters;
+  const { location, minPrice, maxPrice, minRating, propertyType, sortBy = "rating_desc", page = 1, pageSize = 12 } = filters;
 
   return useQuery({
     queryKey: ["hotels", filters],
@@ -30,6 +33,9 @@ export const useHotels = (filters: HotelFilters = {}) => {
       }
       if (minRating !== undefined) {
         query = query.gte("rating", minRating);
+      }
+      if (propertyType) {
+        query = query.eq("property_type", propertyType);
       }
 
       if (sortBy === "price_asc") query = query.order("price_per_night", { ascending: true });
