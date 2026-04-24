@@ -327,4 +327,79 @@ function BookingsTab() {
   );
 }
 
+function UsersTab() {
+  const queryClient = useQueryClient();
+
+  const { data: users } = useQuery({
+    queryKey: ["admin-users"],
+    queryFn: async () => {
+      const [{ data: profiles }, { data: roles }] = await Promise.all([
+        supabase.from("profiles").select("id, full_name, created_at").order("created_at", { ascending: false }),
+        supabase.from("user_roles").select("user_id, role"),
+      ]);
+      const adminIds = new Set((roles || []).filter((r) => r.role === "admin").map((r) => r.user_id));
+      return (profiles || []).map((p) => ({ ...p, isAdmin: adminIds.has(p.id) }));
+    },
+  });
+
+  const toggleAdmin = useMutation({
+    mutationFn: async ({ userId, makeAdmin }: { userId: string; makeAdmin: boolean }) => {
+      if (makeAdmin) {
+        const { error } = await supabase.from("user_roles").insert({ user_id: userId, role: "admin" });
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("user_roles").delete().eq("user_id", userId).eq("role", "admin");
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      toast.success("User role updated");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  return (
+    <div>
+      <h2 className="font-heading text-xl font-semibold mb-4">Users ({users?.length || 0})</h2>
+      <p className="text-sm text-muted-foreground mb-4">
+        Promote trusted users to admin so they can manage hotels, rooms, and bookings.
+      </p>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Name</TableHead>
+            <TableHead>Joined</TableHead>
+            <TableHead>Role</TableHead>
+            <TableHead></TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {users?.map((u) => (
+            <TableRow key={u.id}>
+              <TableCell>{u.full_name || "Unnamed"}</TableCell>
+              <TableCell>{format(new Date(u.created_at), "MMM dd, yyyy")}</TableCell>
+              <TableCell>
+                <Badge variant={u.isAdmin ? "default" : "secondary"}>{u.isAdmin ? "admin" : "user"}</Badge>
+              </TableCell>
+              <TableCell>
+                {u.isAdmin ? (
+                  <Button variant="outline" size="sm" onClick={() => toggleAdmin.mutate({ userId: u.id, makeAdmin: false })}>
+                    <ShieldOff className="h-4 w-4 mr-1" /> Revoke admin
+                  </Button>
+                ) : (
+                  <Button variant="outline" size="sm" onClick={() => toggleAdmin.mutate({ userId: u.id, makeAdmin: true })}>
+                    <Shield className="h-4 w-4 mr-1" /> Make admin
+                  </Button>
+                )}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
+
 export default Admin;
+
