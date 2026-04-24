@@ -75,6 +75,7 @@ export type Database = {
           location: string
           name: string
           price_per_night: number
+          property_type: string
           rating: number | null
           updated_at: string
         }
@@ -87,6 +88,7 @@ export type Database = {
           location: string
           name: string
           price_per_night: number
+          property_type?: string
           rating?: number | null
           updated_at?: string
         }
@@ -99,6 +101,7 @@ export type Database = {
           location?: string
           name?: string
           price_per_night?: number
+          property_type?: string
           rating?: number | null
           updated_at?: string
         }
