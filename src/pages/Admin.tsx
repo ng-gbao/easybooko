@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Hotel, BedDouble, BookOpen } from "lucide-react";
+import { Plus, Pencil, Trash2, Hotel, BedDouble, BookOpen, Users, Shield, ShieldOff } from "lucide-react";
 import { format } from "date-fns";
 
 const Admin = () => {
@@ -30,11 +30,13 @@ const Admin = () => {
           <TabsTrigger value="hotels"><Hotel className="h-4 w-4 mr-1" /> Hotels</TabsTrigger>
           <TabsTrigger value="rooms"><BedDouble className="h-4 w-4 mr-1" /> Rooms</TabsTrigger>
           <TabsTrigger value="bookings"><BookOpen className="h-4 w-4 mr-1" /> Bookings</TabsTrigger>
+          <TabsTrigger value="users"><Users className="h-4 w-4 mr-1" /> Users</TabsTrigger>
         </TabsList>
 
         <TabsContent value="hotels"><HotelsTab /></TabsContent>
         <TabsContent value="rooms"><RoomsTab /></TabsContent>
         <TabsContent value="bookings"><BookingsTab /></TabsContent>
+        <TabsContent value="users"><UsersTab /></TabsContent>
       </Tabs>
     </div>
   );
