@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Hotel, BedDouble, BookOpen } from "lucide-react";
+import { Plus, Pencil, Trash2, Hotel, BedDouble, BookOpen, Users, Shield, ShieldOff } from "lucide-react";
 import { format } from "date-fns";
 
 const Admin = () => {
@@ -30,11 +30,13 @@ const Admin = () => {
           <TabsTrigger value="hotels"><Hotel className="h-4 w-4 mr-1" /> Hotels</TabsTrigger>
           <TabsTrigger value="rooms"><BedDouble className="h-4 w-4 mr-1" /> Rooms</TabsTrigger>
           <TabsTrigger value="bookings"><BookOpen className="h-4 w-4 mr-1" /> Bookings</TabsTrigger>
+          <TabsTrigger value="users"><Users className="h-4 w-4 mr-1" /> Users</TabsTrigger>
         </TabsList>
 
         <TabsContent value="hotels"><HotelsTab /></TabsContent>
         <TabsContent value="rooms"><RoomsTab /></TabsContent>
         <TabsContent value="bookings"><BookingsTab /></TabsContent>
+        <TabsContent value="users"><UsersTab /></TabsContent>
       </Tabs>
     </div>
   );
@@ -44,7 +46,7 @@ function HotelsTab() {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<any>(null);
-  const [form, setForm] = useState({ name: "", location: "", description: "", price_per_night: "", rating: "", amenities: "", images: "" });
+  const [form, setForm] = useState({ name: "", location: "", description: "", price_per_night: "", rating: "", property_type: "hotel", amenities: "", images: "" });
 
   const { data: hotels } = useQuery({
     queryKey: ["admin-hotels"],
@@ -62,6 +64,7 @@ function HotelsTab() {
         description: form.description,
         price_per_night: parseFloat(form.price_per_night),
         rating: parseFloat(form.rating) || 0,
+        property_type: form.property_type,
         amenities: form.amenities.split(",").map((s) => s.trim()).filter(Boolean),
         images: form.images.split(",").map((s) => s.trim()).filter(Boolean),
       };
@@ -95,7 +98,7 @@ function HotelsTab() {
     },
   });
 
-  const resetForm = () => setForm({ name: "", location: "", description: "", price_per_night: "", rating: "", amenities: "", images: "" });
+  const resetForm = () => setForm({ name: "", location: "", description: "", price_per_night: "", rating: "", property_type: "hotel", amenities: "", images: "" });
 
   const openEdit = (h: any) => {
     setEditing(h);
@@ -105,6 +108,7 @@ function HotelsTab() {
       description: h.description || "",
       price_per_night: String(h.price_per_night),
       rating: String(h.rating || ""),
+      property_type: h.property_type || "hotel",
       amenities: (h.amenities || []).join(", "),
       images: (h.images || []).join(", "),
     });
@@ -131,6 +135,15 @@ function HotelsTab() {
                 <Input placeholder="Price/night" type="number" value={form.price_per_night} onChange={(e) => setForm({ ...form, price_per_night: e.target.value })} />
                 <Input placeholder="Rating (0-5)" type="number" step="0.1" value={form.rating} onChange={(e) => setForm({ ...form, rating: e.target.value })} />
               </div>
+              <Select value={form.property_type} onValueChange={(v) => setForm({ ...form, property_type: v })}>
+                <SelectTrigger><SelectValue placeholder="Property type" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="hotel">Hotel</SelectItem>
+                  <SelectItem value="apartment">Apartment</SelectItem>
+                  <SelectItem value="resort">Resort</SelectItem>
+                  <SelectItem value="villa">Villa</SelectItem>
+                </SelectContent>
+              </Select>
               <Input placeholder="Amenities (comma-separated)" value={form.amenities} onChange={(e) => setForm({ ...form, amenities: e.target.value })} />
               <Input placeholder="Image URLs (comma-separated)" value={form.images} onChange={(e) => setForm({ ...form, images: e.target.value })} />
               <Button className="w-full" onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending}>
@@ -314,4 +327,79 @@ function BookingsTab() {
   );
 }
 
+function UsersTab() {
+  const queryClient = useQueryClient();
+
+  const { data: users } = useQuery({
+    queryKey: ["admin-users"],
+    queryFn: async () => {
+      const [{ data: profiles }, { data: roles }] = await Promise.all([
+        supabase.from("profiles").select("id, full_name, created_at").order("created_at", { ascending: false }),
+        supabase.from("user_roles").select("user_id, role"),
+      ]);
+      const adminIds = new Set((roles || []).filter((r) => r.role === "admin").map((r) => r.user_id));
+      return (profiles || []).map((p) => ({ ...p, isAdmin: adminIds.has(p.id) }));
+    },
+  });
+
+  const toggleAdmin = useMutation({
+    mutationFn: async ({ userId, makeAdmin }: { userId: string; makeAdmin: boolean }) => {
+      if (makeAdmin) {
+        const { error } = await supabase.from("user_roles").insert({ user_id: userId, role: "admin" });
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("user_roles").delete().eq("user_id", userId).eq("role", "admin");
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      toast.success("User role updated");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  return (
+    <div>
+      <h2 className="font-heading text-xl font-semibold mb-4">Users ({users?.length || 0})</h2>
+      <p className="text-sm text-muted-foreground mb-4">
+        Promote trusted users to admin so they can manage hotels, rooms, and bookings.
+      </p>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Name</TableHead>
+            <TableHead>Joined</TableHead>
+            <TableHead>Role</TableHead>
+            <TableHead></TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {users?.map((u) => (
+            <TableRow key={u.id}>
+              <TableCell>{u.full_name || "Unnamed"}</TableCell>
+              <TableCell>{format(new Date(u.created_at), "MMM dd, yyyy")}</TableCell>
+              <TableCell>
+                <Badge variant={u.isAdmin ? "default" : "secondary"}>{u.isAdmin ? "admin" : "user"}</Badge>
+              </TableCell>
+              <TableCell>
+                {u.isAdmin ? (
+                  <Button variant="outline" size="sm" onClick={() => toggleAdmin.mutate({ userId: u.id, makeAdmin: false })}>
+                    <ShieldOff className="h-4 w-4 mr-1" /> Revoke admin
+                  </Button>
+                ) : (
+                  <Button variant="outline" size="sm" onClick={() => toggleAdmin.mutate({ userId: u.id, makeAdmin: true })}>
+                    <Shield className="h-4 w-4 mr-1" /> Make admin
+                  </Button>
+                )}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
+
 export default Admin;
+

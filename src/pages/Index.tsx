@@ -2,7 +2,10 @@ import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import HeroSearch from "@/components/HeroSearch";
 import HotelCard from "@/components/HotelCard";
-import { useHotels } from "@/hooks/useHotels";
+import WhyChooseUs from "@/components/WhyChooseUs";
+import TrendingDestinations from "@/components/TrendingDestinations";
+import PropertyTypeFilter from "@/components/PropertyTypeFilter";
+import { useHotels, type PropertyType } from "@/hooks/useHotels";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
@@ -14,6 +17,7 @@ const Index = () => {
   const location = searchParams.get("location") || "";
   const [priceRange, setPriceRange] = useState([0, 1000]);
   const [minRating, setMinRating] = useState<number | undefined>();
+  const [propertyType, setPropertyType] = useState<PropertyType | undefined>();
   const [sortBy, setSortBy] = useState<"price_asc" | "price_desc" | "rating_desc">("rating_desc");
   const [page, setPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
@@ -23,6 +27,7 @@ const Index = () => {
     minPrice: priceRange[0] > 0 ? priceRange[0] : undefined,
     maxPrice: priceRange[1] < 1000 ? priceRange[1] : undefined,
     minRating,
+    propertyType,
     sortBy,
     page,
   });
@@ -37,7 +42,7 @@ const Index = () => {
         {/* Toolbar */}
         <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
           <h2 className="font-heading text-2xl font-bold">
-            {location ? `Hotels in "${location}"` : "Featured Hotels"}
+            {location ? `Stays in "${location}"` : "Featured stays"}
           </h2>
           <div className="flex items-center gap-3">
             <Button variant="outline" size="sm" onClick={() => setShowFilters(!showFilters)}>
@@ -54,6 +59,17 @@ const Index = () => {
               </SelectContent>
             </Select>
           </div>
+        </div>
+
+        {/* Property type filter */}
+        <div className="mb-6">
+          <PropertyTypeFilter
+            value={propertyType}
+            onChange={(v) => {
+              setPropertyType(v);
+              setPage(1);
+            }}
+          />
         </div>
 
         {/* Filters panel */}
@@ -102,7 +118,7 @@ const Index = () => {
           </div>
         ) : data?.hotels.length === 0 ? (
           <div className="text-center py-20">
-            <p className="text-xl text-muted-foreground">No hotels found. Try adjusting your filters.</p>
+            <p className="text-xl text-muted-foreground">No stays found. Try adjusting your filters.</p>
           </div>
         ) : (
           <>
@@ -129,6 +145,9 @@ const Index = () => {
           </>
         )}
       </div>
+
+      <TrendingDestinations />
+      <WhyChooseUs />
     </div>
   );
 };
