@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, Search, MapPin } from "lucide-react";
+import { CalendarIcon, Search, MapPin, Users, Minus, Plus } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
@@ -14,14 +14,41 @@ const HeroSearch = () => {
   const [location, setLocation] = useState(searchParams.get("location") || "");
   const [checkIn, setCheckIn] = useState<Date>();
   const [checkOut, setCheckOut] = useState<Date>();
+  const [adults, setAdults] = useState(2);
+  const [children, setChildren] = useState(0);
+  const [rooms, setRooms] = useState(1);
 
   const handleSearch = () => {
     const params = new URLSearchParams();
     if (location) params.set("location", location);
     if (checkIn) params.set("checkIn", checkIn.toISOString());
     if (checkOut) params.set("checkOut", checkOut.toISOString());
+    params.set("adults", String(adults));
+    params.set("children", String(children));
+    params.set("rooms", String(rooms));
     navigate(`/?${params.toString()}`);
+    // Smooth scroll to results
+    setTimeout(() => {
+      document.getElementById("results")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 50);
   };
+
+  const guestLabel = `${adults + children} guest${adults + children > 1 ? "s" : ""} · ${rooms} room${rooms > 1 ? "s" : ""}`;
+
+  const Stepper = ({ label, value, setValue, min = 0 }: { label: string; value: number; setValue: (n: number) => void; min?: number }) => (
+    <div className="flex items-center justify-between py-2">
+      <span className="text-sm font-medium">{label}</span>
+      <div className="flex items-center gap-3">
+        <Button type="button" variant="outline" size="icon" className="h-8 w-8" disabled={value <= min} onClick={() => setValue(value - 1)}>
+          <Minus className="h-3.5 w-3.5" />
+        </Button>
+        <span className="w-6 text-center text-sm">{value}</span>
+        <Button type="button" variant="outline" size="icon" className="h-8 w-8" onClick={() => setValue(value + 1)}>
+          <Plus className="h-3.5 w-3.5" />
+        </Button>
+      </div>
+    </div>
+  );
 
   return (
     <section className="relative bg-ocean-deep text-primary-foreground overflow-hidden">
@@ -43,8 +70,8 @@ const HeroSearch = () => {
           Discover handpicked hotels with unbeatable prices and world-class service.
         </p>
 
-        <div className="bg-card text-card-foreground rounded-xl p-4 md:p-6 shadow-2xl max-w-4xl">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+        <div className="bg-card text-card-foreground rounded-xl p-4 md:p-6 shadow-2xl max-w-5xl">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
             <div className="relative md:col-span-2">
               <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -88,6 +115,20 @@ const HeroSearch = () => {
                   disabled={(date) => date <= (checkIn || new Date())}
                   className="p-3 pointer-events-auto"
                 />
+              </PopoverContent>
+            </Popover>
+
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="justify-start text-left font-normal">
+                  <Users className="mr-2 h-4 w-4" />
+                  <span className="truncate">{guestLabel}</span>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-72 p-4" align="start">
+                <Stepper label="Adults" value={adults} setValue={setAdults} min={1} />
+                <Stepper label="Children" value={children} setValue={setChildren} min={0} />
+                <Stepper label="Rooms" value={rooms} setValue={setRooms} min={1} />
               </PopoverContent>
             </Popover>
           </div>
