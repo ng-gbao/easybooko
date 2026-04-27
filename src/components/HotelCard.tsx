@@ -82,8 +82,16 @@ const HotelCard = ({ hotel }: HotelCardProps) => {
             <MapPin className="h-3.5 w-3.5" />
             <span className="line-clamp-1">{hotel.location}</span>
           </div>
+          <div className="flex gap-1.5 mt-3 flex-wrap">
+            <Badge variant="outline" className="text-[10px] border-emerald-500/40 text-emerald-700 dark:text-emerald-400">
+              Free cancellation
+            </Badge>
+            <Badge variant="outline" className="text-[10px] border-sky-500/40 text-sky-700 dark:text-sky-400">
+              Pay at hotel
+            </Badge>
+          </div>
           {hotel.amenities && hotel.amenities.length > 0 && (
-            <div className="flex gap-1.5 mt-3 flex-wrap">
+            <div className="flex gap-1.5 mt-2 flex-wrap">
               {hotel.amenities.slice(0, 3).map((a) => (
                 <Badge key={a} variant="secondary" className="text-xs">{a}</Badge>
               ))}
