@@ -4,6 +4,12 @@ import HeroSearch from "@/components/HeroSearch";
 import HotelCard from "@/components/HotelCard";
 import WhyChooseUs from "@/components/WhyChooseUs";
 import TrendingDestinations from "@/components/TrendingDestinations";
+import Promotions from "@/components/Promotions";
+import AccommodationOptions from "@/components/AccommodationOptions";
+import Attractions from "@/components/Attractions";
+import TravelActivities from "@/components/TravelActivities";
+import TravelGuide from "@/components/TravelGuide";
+import ExploreLinks from "@/components/ExploreLinks";
 import PropertyTypeFilter from "@/components/PropertyTypeFilter";
 import { useHotels, type PropertyType } from "@/hooks/useHotels";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -146,7 +152,13 @@ const Index = () => {
         )}
       </div>
 
+      <Promotions />
+      <AccommodationOptions />
       <TrendingDestinations />
+      <Attractions />
+      <TravelActivities />
+      <TravelGuide />
+      <ExploreLinks />
       <WhyChooseUs />
     </div>
   );
