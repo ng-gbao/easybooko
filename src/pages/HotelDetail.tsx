@@ -157,6 +157,17 @@ const HotelDetail = () => {
             <div className="flex items-center gap-1 text-muted-foreground">
               <MapPin className="h-4 w-4" /> {hotel.location}
             </div>
+            <div className="flex flex-wrap gap-2 mt-3">
+              <Badge variant="outline" className="border-emerald-500/40 text-emerald-700 dark:text-emerald-400">
+                Free cancellation
+              </Badge>
+              <Badge variant="outline" className="border-sky-500/40 text-sky-700 dark:text-sky-400">
+                Pay at hotel
+              </Badge>
+              <Badge variant="outline" className="border-amber-500/40 text-amber-700 dark:text-amber-400">
+                No prepayment needed
+              </Badge>
+            </div>
           </div>
 
           <p className="text-muted-foreground leading-relaxed">{hotel.description}</p>

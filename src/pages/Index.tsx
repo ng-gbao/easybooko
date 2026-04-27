@@ -38,7 +38,7 @@ const Index = () => {
     <div className="min-h-screen">
       <HeroSearch />
 
-      <div className="container mx-auto px-4 py-10">
+      <div id="results" className="container mx-auto px-4 py-12 md:py-16 scroll-mt-20">
         {/* Toolbar */}
         <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
           <h2 className="font-heading text-2xl font-bold">
