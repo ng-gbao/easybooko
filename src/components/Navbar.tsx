@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 
 const navLinks = [
   { to: "/", label: "Home", icon: Home },
-  { to: "/?view=all", label: "Hotels", icon: Hotel },
+  { to: "/hotels", label: "Hotels", icon: Hotel },
 ];
 
 const Navbar = () => {

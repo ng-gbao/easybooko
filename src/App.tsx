@@ -16,6 +16,7 @@ import BookingSuccess from "@/pages/BookingSuccess";
 import Dashboard from "@/pages/Dashboard";
 import Wishlist from "@/pages/Wishlist";
 import Admin from "@/pages/Admin";
+import Hotels from "@/pages/Hotels";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -44,6 +45,7 @@ const App = () => (
               <main className="flex-1">
                 <Routes>
                   <Route path="/" element={<Index />} />
+                  <Route path="/hotels" element={<Hotels />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/signup" element={<Signup />} />
                   <Route path="/hotel/:id" element={<HotelDetail />} />
