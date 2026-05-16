@@ -23,6 +23,15 @@ const Hotels = () => {
   const [page, setPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
 
+  useEffect(() => {
+    const t = (searchParams.get("type") as PropertyType | null) || undefined;
+    setPropertyType(t);
+    const loc = searchParams.get("location") || "";
+    setLocation(loc);
+    setLocationInput(loc);
+    setPage(1);
+  }, [searchParams]);
+
   const { data, isLoading } = useHotels({
     location,
     minPrice: priceRange[0] > 0 ? priceRange[0] : undefined,
