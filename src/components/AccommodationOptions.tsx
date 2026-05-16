@@ -21,7 +21,7 @@ const AccommodationOptions = () => {
           {types.map(({ key, label, desc, icon: Icon, count }) => (
             <button
               key={key}
-              onClick={() => navigate(`/?type=${key}`)}
+              onClick={() => navigate(`/hotels?type=${key}`)}
               className="text-left bg-card border rounded-xl p-6 hover:border-primary hover:shadow-md transition-all group"
             >
               <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-primary/10 text-primary mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">

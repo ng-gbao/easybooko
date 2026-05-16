@@ -17,6 +17,8 @@ import Dashboard from "@/pages/Dashboard";
 import Wishlist from "@/pages/Wishlist";
 import Admin from "@/pages/Admin";
 import Hotels from "@/pages/Hotels";
+import Trending from "@/pages/Trending";
+import Attractions from "@/pages/Attractions";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -46,6 +48,9 @@ const App = () => (
                 <Routes>
                   <Route path="/" element={<Index />} />
                   <Route path="/hotels" element={<Hotels />} />
+                  <Route path="/trending/:city" element={<Trending />} />
+                  <Route path="/attractions" element={<Attractions />} />
+                  <Route path="/attractions/:slug" element={<Attractions />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/signup" element={<Signup />} />
                   <Route path="/hotel/:id" element={<HotelDetail />} />
