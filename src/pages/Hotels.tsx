@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import HotelCard from "@/components/HotelCard";
 import PropertyTypeFilter from "@/components/PropertyTypeFilter";
@@ -13,11 +13,12 @@ import { Star, SlidersHorizontal, MapPin } from "lucide-react";
 const Hotels = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const initialLocation = searchParams.get("location") || "";
+  const initialType = (searchParams.get("type") as PropertyType | null) || undefined;
   const [locationInput, setLocationInput] = useState(initialLocation);
   const [location, setLocation] = useState(initialLocation);
   const [priceRange, setPriceRange] = useState([0, 1000]);
   const [minRating, setMinRating] = useState<number | undefined>();
-  const [propertyType, setPropertyType] = useState<PropertyType | undefined>();
+  const [propertyType, setPropertyType] = useState<PropertyType | undefined>(initialType);
   const [sortBy, setSortBy] = useState<"price_asc" | "price_desc" | "rating_desc">("rating_desc");
   const [page, setPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
