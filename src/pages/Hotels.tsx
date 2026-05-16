@@ -105,8 +105,9 @@ const Hotels = () => {
           <PropertyTypeFilter
             value={propertyType}
             onChange={(v) => {
-              setPropertyType(v);
-              setPage(1);
+              const params = new URLSearchParams(searchParams);
+              if (v) params.set("type", v); else params.delete("type");
+              setSearchParams(params, { replace: true });
             }}
           />
         </div>
