@@ -17,6 +17,8 @@ import Dashboard from "@/pages/Dashboard";
 import Wishlist from "@/pages/Wishlist";
 import Admin from "@/pages/Admin";
 import Hotels from "@/pages/Hotels";
+import Trending from "@/pages/Trending";
+import Attractions from "@/pages/Attractions";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient({
