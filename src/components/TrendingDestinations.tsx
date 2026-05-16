@@ -23,7 +23,7 @@ const TrendingDestinations = () => {
           {destinations.map((d, i) => (
             <button
               key={d.name}
-              onClick={() => navigate(`/?location=${encodeURIComponent(d.name)}`)}
+              onClick={() => navigate(`/trending/${encodeURIComponent(d.name)}`)}
               className={`group relative overflow-hidden rounded-xl text-left ${
                 i === 0 ? "md:col-span-2 md:row-span-2 aspect-square md:aspect-auto" : "aspect-[4/3]"
               }`}
