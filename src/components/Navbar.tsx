@@ -38,7 +38,7 @@ const Navbar = () => {
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="font-heading text-xl font-bold text-primary flex items-center gap-2 shrink-0">
-          <span className="text-2xl">🏨</span> StayFlow
+          <span className="text-2xl">🏨</span> Easybooko
         </Link>
 
         {/* Desktop nav links */}

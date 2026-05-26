@@ -9,7 +9,7 @@ const Footer = () => {
           {/* Brand */}
           <div className="space-y-4">
             <Link to="/" className="font-heading text-xl font-bold flex items-center gap-2">
-              <span className="text-2xl">🏨</span> StayFlow
+              <span className="text-2xl">🏨</span> Easybooko
             </Link>
             <p className="text-sm opacity-70 leading-relaxed">
               Discover handpicked hotels worldwide. Book with confidence and enjoy unforgettable stays.
@@ -73,7 +73,7 @@ const Footer = () => {
         </div>
 
         <div className="border-t border-white/10 mt-10 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm opacity-50">
-          <p>© {new Date().getFullYear()} StayFlow. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Easybooko. All rights reserved.</p>
           <div className="flex gap-4">
             <a href="#" className="hover:opacity-100 transition-opacity">Terms</a>
             <a href="#" className="hover:opacity-100 transition-opacity">Privacy</a>

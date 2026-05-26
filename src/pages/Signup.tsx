@@ -32,7 +32,7 @@ const Signup = () => {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="font-heading text-2xl">Create Account</CardTitle>
-          <CardDescription>Join StayFlow and start booking</CardDescription>
+          <CardDescription>Join Easybooko and start booking</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <Button variant="outline" className="w-full" onClick={signInWithGoogle}>
