@@ -1,25 +1,10 @@
 import { ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
+import { guides, FALLBACK_IMAGE } from "@/data/travelContent";
 
-const articles = [
-  {
-    title: "10 hidden gems in Vietnam you must visit",
-    category: "Destination guide",
-    read: "5 min read",
-    image: "https://images.unsplash.com/photo-1509923936021-c9bf38940dd2?w=800&q=80",
-  },
-  {
-    title: "How to pack smart for a 2-week trip",
-    category: "Travel tips",
-    read: "4 min read",
-    image: "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&q=80",
-  },
-  {
-    title: "Best street food cities in Southeast Asia",
-    category: "Food & culture",
-    read: "6 min read",
-    image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&q=80",
-  },
-];
+const handleImgError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+  if (e.currentTarget.src !== FALLBACK_IMAGE) e.currentTarget.src = FALLBACK_IMAGE;
+};
 
 const TravelGuide = () => (
   <section className="py-16 bg-muted/30">
@@ -29,10 +14,14 @@ const TravelGuide = () => (
         <p className="text-muted-foreground">Insider stories and practical advice for your next adventure.</p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {articles.map((a) => (
-          <article key={a.title} className="group bg-card border rounded-xl overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
+        {guides.map((a) => (
+          <Link
+            key={a.slug}
+            to={`/travel-guide/${a.slug}`}
+            className="group bg-card border rounded-xl overflow-hidden hover:shadow-lg transition-shadow cursor-pointer block"
+          >
             <div className="aspect-[16/10] overflow-hidden">
-              <img src={a.image} alt={a.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+              <img src={a.image} onError={handleImgError} alt={a.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
             </div>
             <div className="p-5">
               <div className="text-xs text-primary font-semibold uppercase tracking-wide mb-2">{a.category}</div>
@@ -44,7 +33,7 @@ const TravelGuide = () => (
                 <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </div>
             </div>
-          </article>
+          </Link>
         ))}
       </div>
     </div>
