@@ -20,6 +20,8 @@ import Hotels from "@/pages/Hotels";
 import Trending from "@/pages/Trending";
 import Attractions from "@/pages/Attractions";
 import NotFound from "@/pages/NotFound";
+import TravelExperiences from "@/pages/TravelExperiences";
+import TravelGuidePage from "@/pages/TravelGuide";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -51,6 +53,10 @@ const App = () => (
                   <Route path="/trending/:city" element={<Trending />} />
                   <Route path="/attractions" element={<Attractions />} />
                   <Route path="/attractions/:slug" element={<Attractions />} />
+                  <Route path="/experiences" element={<TravelExperiences />} />
+                  <Route path="/experiences/:slug" element={<TravelExperiences />} />
+                  <Route path="/travel-guide" element={<TravelGuidePage />} />
+                  <Route path="/travel-guide/:slug" element={<TravelGuidePage />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/signup" element={<Signup />} />
                   <Route path="/hotel/:id" element={<HotelDetail />} />
