@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
 
+const FALLBACK_ATTRACTION = "https://images.unsplash.com/photo-1503220317375-aaad61436b1b?w=800&q=80";
+
 const attractions = [
   { slug: "universal-studios", name: "Universal Studios", city: "Singapore", price: 78, image: "https://images.unsplash.com/photo-1569096651661-820d0de8b4ab?w=600&q=80" },
-  { slug: "vinpearl-land", name: "Vinpearl Land", city: "Phu Quoc", price: 35, image: "https://images.unsplash.com/photo-1560786824-0d04e0bb44c2?w=600&q=80" },
+  { slug: "vinpearl-land", name: "Vinpearl Land", city: "Phu Quoc", price: 35, image: "https://images.unsplash.com/photo-1597466599360-3b9775841aec?w=800&q=80" },
   { slug: "tokyo-disneyland", name: "Tokyo Disneyland", city: "Tokyo", price: 92, image: "https://images.unsplash.com/photo-1624601573012-efb68931cc8f?w=600&q=80" },
   { slug: "ba-na-hills-tour", name: "Ba Na Hills Tour", city: "Da Nang", price: 45, image: "https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=600&q=80" },
   { slug: "eiffel-tower-skip-the-line", name: "Eiffel Tower Skip-the-Line", city: "Paris", price: 56, image: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600&q=80" },
@@ -23,7 +25,7 @@ const Attractions = () => (
             className="snap-start shrink-0 w-64 md:w-72 bg-card border rounded-xl overflow-hidden hover:shadow-lg transition-shadow"
           >
             <div className="aspect-[4/3] overflow-hidden">
-              <img src={a.image} alt={a.name} loading="lazy" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+              <img src={a.image} alt={a.name} loading="lazy" onError={(e) => { if (e.currentTarget.src !== FALLBACK_ATTRACTION) e.currentTarget.src = FALLBACK_ATTRACTION; }} className="w-full h-full object-cover hover:scale-110 transition-transform duration-700" />
             </div>
             <div className="p-4">
               <div className="text-xs text-muted-foreground mb-1">{a.city}</div>

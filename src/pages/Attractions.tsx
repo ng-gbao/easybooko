@@ -3,6 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Clock, MapPin, Sparkles, Ticket, Star, ShieldCheck } from "lucide-react";
 
+const FALLBACK_ATTRACTION = "https://images.unsplash.com/photo-1503220317375-aaad61436b1b?w=1600&q=80";
+const onImgErr = (e: React.SyntheticEvent<HTMLImageElement>) => { if (e.currentTarget.src !== FALLBACK_ATTRACTION) e.currentTarget.src = FALLBACK_ATTRACTION; };
+
 export const attractionsData = [
   {
     slug: "universal-studios",
@@ -21,7 +24,7 @@ export const attractionsData = [
     name: "Vinpearl Land",
     city: "Phu Quoc",
     price: 35,
-    image: "https://images.unsplash.com/photo-1560786824-0d04e0bb44c2?w=1600&q=80",
+    image: "https://images.unsplash.com/photo-1597466599360-3b9775841aec?w=1600&q=80",
     duration: "Full day",
     rating: 4.5,
     description:
@@ -74,7 +77,7 @@ const Attractions = () => {
     <div className="min-h-screen">
       {/* Hero */}
       <section className="relative h-[55vh] min-h-[420px] overflow-hidden">
-        <img src={attraction.image} alt={attraction.name} className="absolute inset-0 w-full h-full object-cover" />
+        <img src={attraction.image} alt={attraction.name} onError={onImgErr} className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/20" />
         <div className="relative h-full container mx-auto px-4 flex flex-col justify-end pb-12 text-primary-foreground">
           <Badge className="self-start mb-4 bg-primary/90 backdrop-blur-sm gap-1">
@@ -110,7 +113,7 @@ const Attractions = () => {
           </div>
 
           <div className="rounded-xl overflow-hidden border">
-            <img src={attraction.image} alt={attraction.name} className="w-full h-80 object-cover" />
+            <img src={attraction.image} alt={attraction.name} onError={onImgErr} className="w-full h-80 object-cover" />
           </div>
         </div>
 
@@ -146,7 +149,7 @@ const Attractions = () => {
                 className="bg-card border rounded-xl overflow-hidden hover:shadow-lg transition-shadow group"
               >
                 <div className="aspect-[4/3] overflow-hidden">
-                  <img src={a.image} alt={a.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <img src={a.image} alt={a.name} onError={onImgErr} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 </div>
                 <div className="p-4">
                   <div className="text-xs text-muted-foreground mb-1">{a.city}</div>

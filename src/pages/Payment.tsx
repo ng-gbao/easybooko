@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { CreditCard, Lock, CalendarDays, MapPin, ArrowLeft, ShieldCheck } from "lucide-react";
+import { CreditCard, Lock, CalendarDays, MapPin, ArrowLeft, ShieldCheck, QrCode, CheckCircle2 } from "lucide-react";
 import { format } from "date-fns";
 
 interface BookingState {
@@ -37,7 +37,7 @@ const Payment = () => {
   const [expiry, setExpiry] = useState("");
   const [cvv, setCvv] = useState("");
   const [processing, setProcessing] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<"card" | "paypal">("card");
+  const [paymentMethod, setPaymentMethod] = useState<"card" | "qr">("card");
 
   if (!user) return <Navigate to="/login" />;
   if (!booking) return <Navigate to="/" />;
@@ -126,16 +126,16 @@ const Payment = () => {
                     <p className="text-sm font-medium text-center">Credit / Debit Card</p>
                   </button>
                   <button
-                    onClick={() => setPaymentMethod("paypal")}
-                    className={`flex-1 p-4 rounded-lg border-2 transition-colors ${paymentMethod === "paypal" ? "border-primary bg-primary/5" : "border-border hover:border-muted-foreground/30"}`}
+                    onClick={() => setPaymentMethod("qr")}
+                    className={`flex-1 p-4 rounded-lg border-2 transition-all hover:-translate-y-0.5 ${paymentMethod === "qr" ? "border-primary bg-primary/5" : "border-border hover:border-muted-foreground/30"}`}
                   >
-                    <div className="h-6 w-6 mb-2 mx-auto flex items-center justify-center font-bold text-blue-600">P</div>
-                    <p className="text-sm font-medium text-center">PayPal</p>
+                    <QrCode className="h-6 w-6 mb-2 mx-auto" />
+                    <p className="text-sm font-medium text-center">QR / E-wallet</p>
                   </button>
                 </div>
 
                 {paymentMethod === "card" && (
-                  <div className="space-y-4 pt-2">
+                  <div className="space-y-4 pt-2 animate-fade-in">
                     <div>
                       <Label htmlFor="cardName">Cardholder Name</Label>
                       <Input id="cardName" placeholder="John Doe" value={cardName} onChange={(e) => setCardName(e.target.value)} />
@@ -166,9 +166,24 @@ const Payment = () => {
                   </div>
                 )}
 
-                {paymentMethod === "paypal" && (
-                  <div className="text-center py-6 text-muted-foreground">
-                    <p className="text-sm">You will be redirected to PayPal to complete payment.</p>
+                {paymentMethod === "qr" && (
+                  <div className="pt-2 animate-fade-in text-center">
+                    <p className="text-sm text-muted-foreground mb-4">Scan with your banking app or e-wallet to pay</p>
+                    <div className="mx-auto w-56 h-56 bg-white border-2 border-primary/20 rounded-xl p-3 flex items-center justify-center shadow-inner">
+                      <svg viewBox="0 0 100 100" className="w-full h-full text-ocean-deep">
+                        <rect width="100" height="100" fill="white" />
+                        {Array.from({ length: 144 }).map((_, i) => {
+                          const x = (i % 12) * 8 + 2;
+                          const y = Math.floor(i / 12) * 8 + 2;
+                          const filled = ((i * 7) % 13) % 3 !== 0;
+                          return filled ? <rect key={i} x={x} y={y} width="6" height="6" fill="currentColor" /> : null;
+                        })}
+                        <rect x="2" y="2" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="3" />
+                        <rect x="76" y="2" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="3" />
+                        <rect x="2" y="76" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="3" />
+                      </svg>
+                    </div>
+                    <p className="mt-4 text-xs text-muted-foreground">Supports Momo, ZaloPay, VNPay, banking apps</p>
                   </div>
                 )}
               </CardContent>
@@ -250,9 +265,11 @@ const Payment = () => {
                       Processing...
                     </span>
                   ) : (
-                    <>
-                      <Lock className="h-4 w-4 mr-2" /> Confirm & Pay ${booking.totalPrice}
-                    </>
+                    paymentMethod === "qr" ? (
+                      <><CheckCircle2 className="h-4 w-4 mr-2" /> I have completed payment</>
+                    ) : (
+                      <><Lock className="h-4 w-4 mr-2" /> Pay now · ${booking.totalPrice}</>
+                    )
                   )}
                 </Button>
 

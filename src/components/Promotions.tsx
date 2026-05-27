@@ -25,7 +25,7 @@ const promos = [
 ];
 
 const Promotions = () => (
-  <section className="py-16 bg-muted/30">
+  <section className="py-16 bg-gradient-to-br from-orange-50 via-amber-50 to-rose-50 dark:from-orange-950/30 dark:via-amber-950/20 dark:to-rose-950/30">
     <div className="container mx-auto px-4">
       <div className="mb-8 flex items-end justify-between flex-wrap gap-2">
         <div>

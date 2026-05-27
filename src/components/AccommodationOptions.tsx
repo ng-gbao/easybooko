@@ -11,7 +11,7 @@ const types = [
 const AccommodationOptions = () => {
   const navigate = useNavigate();
   return (
-    <section className="py-16 bg-muted/30">
+    <section className="py-16 bg-gradient-to-br from-teal-50 to-sky-50 dark:from-teal-950/20 dark:to-sky-950/20">
       <div className="container mx-auto px-4">
         <div className="mb-8">
           <h2 className="font-heading text-3xl md:text-4xl font-bold mb-2">More accommodation options</h2>
