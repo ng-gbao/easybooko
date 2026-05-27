@@ -25,7 +25,7 @@ const Attractions = () => (
             className="snap-start shrink-0 w-64 md:w-72 bg-card border rounded-xl overflow-hidden hover:shadow-lg transition-shadow"
           >
             <div className="aspect-[4/3] overflow-hidden">
-              <img src={a.image} alt={a.name} loading="lazy" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+              <img src={a.image} alt={a.name} loading="lazy" onError={(e) => { if (e.currentTarget.src !== FALLBACK_ATTRACTION) e.currentTarget.src = FALLBACK_ATTRACTION; }} className="w-full h-full object-cover hover:scale-110 transition-transform duration-700" />
             </div>
             <div className="p-4">
               <div className="text-xs text-muted-foreground mb-1">{a.city}</div>
