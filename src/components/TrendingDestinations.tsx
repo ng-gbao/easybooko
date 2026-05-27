@@ -13,7 +13,7 @@ const TrendingDestinations = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="py-16">
+    <section className="py-16 bg-sky-50/60 dark:bg-sky-950/20">
       <div className="container mx-auto px-4">
         <div className="mb-8">
           <h2 className="font-heading text-3xl md:text-4xl font-bold mb-2">Trending destinations</h2>
