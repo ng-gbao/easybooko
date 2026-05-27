@@ -54,8 +54,9 @@ const HotelCard = ({ hotel }: HotelCardProps) => {
         <img
           src={img}
           alt={hotel.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
           loading="lazy"
+          onError={(e) => { const fb = "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80"; if (e.currentTarget.src !== fb) e.currentTarget.src = fb; }}
         />
         {user && (
           <button
