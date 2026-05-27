@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 
+const FALLBACK_ATTRACTION = "https://images.unsplash.com/photo-1503220317375-aaad61436b1b?w=800&q=80";
+
 const attractions = [
   { slug: "universal-studios", name: "Universal Studios", city: "Singapore", price: 78, image: "https://images.unsplash.com/photo-1569096651661-820d0de8b4ab?w=600&q=80" },
   { slug: "vinpearl-land", name: "Vinpearl Land", city: "Phu Quoc", price: 35, image: "https://images.unsplash.com/photo-1597466599360-3b9775841aec?w=800&q=80" },
