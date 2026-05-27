@@ -37,7 +37,7 @@ const Payment = () => {
   const [expiry, setExpiry] = useState("");
   const [cvv, setCvv] = useState("");
   const [processing, setProcessing] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<"card" | "paypal">("card");
+  const [paymentMethod, setPaymentMethod] = useState<"card" | "qr">("card");
 
   if (!user) return <Navigate to="/login" />;
   if (!booking) return <Navigate to="/" />;
