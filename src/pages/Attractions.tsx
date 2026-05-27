@@ -21,7 +21,7 @@ export const attractionsData = [
     name: "Vinpearl Land",
     city: "Phu Quoc",
     price: 35,
-    image: "https://images.unsplash.com/photo-1560786824-0d04e0bb44c2?w=1600&q=80",
+    image: "https://images.unsplash.com/photo-1597466599360-3b9775841aec?w=1600&q=80",
     duration: "Full day",
     rating: 4.5,
     description:
