@@ -3,6 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Clock, MapPin, Sparkles, Ticket, Star, ShieldCheck } from "lucide-react";
 
+const FALLBACK_ATTRACTION = "https://images.unsplash.com/photo-1503220317375-aaad61436b1b?w=1600&q=80";
+const onImgErr = (e: React.SyntheticEvent<HTMLImageElement>) => { if (e.currentTarget.src !== FALLBACK_ATTRACTION) e.currentTarget.src = FALLBACK_ATTRACTION; };
+
 export const attractionsData = [
   {
     slug: "universal-studios",
