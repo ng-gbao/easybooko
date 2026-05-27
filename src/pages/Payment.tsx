@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { CreditCard, Lock, CalendarDays, MapPin, ArrowLeft, ShieldCheck } from "lucide-react";
+import { CreditCard, Lock, CalendarDays, MapPin, ArrowLeft, ShieldCheck, QrCode, CheckCircle2 } from "lucide-react";
 import { format } from "date-fns";
 
 interface BookingState {
