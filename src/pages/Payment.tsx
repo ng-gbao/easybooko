@@ -265,9 +265,11 @@ const Payment = () => {
                       Processing...
                     </span>
                   ) : (
-                    <>
-                      <Lock className="h-4 w-4 mr-2" /> Confirm & Pay ${booking.totalPrice}
-                    </>
+                    paymentMethod === "qr" ? (
+                      <><CheckCircle2 className="h-4 w-4 mr-2" /> I have completed payment</>
+                    ) : (
+                      <><Lock className="h-4 w-4 mr-2" /> Pay now · ${booking.totalPrice}</>
+                    )
                   )}
                 </Button>
 
