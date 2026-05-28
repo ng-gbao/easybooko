@@ -12,6 +12,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { LogOut, User, Shield, Heart, Menu, X, Hotel, CalendarDays, Home } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { Logo } from "@/components/Logo";
 
 const navLinks = [
   { to: "/", label: "Home", icon: Home },
