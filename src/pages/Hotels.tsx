@@ -168,15 +168,48 @@ const Hotels = () => {
 
           {/* Main search bar */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-3 bg-card text-card-foreground p-3 rounded-xl shadow-xl">
-            <div className="relative md:col-span-4">
-              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <div className="relative md:col-span-4" ref={suggestRef}>
+              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
               <Input
-                placeholder="Destination"
+                placeholder="Where are you going? e.g. Hanoi, Da Nang…"
                 value={locationInput}
-                onChange={(e) => setLocationInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && applyLocationFilter()}
+                onChange={(e) => { setLocationInput(e.target.value); setShowSuggest(true); setHighlight(-1); }}
+                onFocus={() => setShowSuggest(true)}
+                onKeyDown={(e) => {
+                  if (e.key === "ArrowDown") { e.preventDefault(); setHighlight((h) => Math.min(h + 1, suggestions.length - 1)); }
+                  else if (e.key === "ArrowUp") { e.preventDefault(); setHighlight((h) => Math.max(h - 1, 0)); }
+                  else if (e.key === "Enter") {
+                    if (highlight >= 0 && suggestions[highlight]) selectSuggestion(suggestions[highlight]);
+                    else applyLocationFilter();
+                  } else if (e.key === "Escape") setShowSuggest(false);
+                }}
                 className="pl-9"
+                autoComplete="off"
               />
+              {showSuggest && suggestions.length > 0 && (
+                <div className="absolute left-0 right-0 top-full mt-1 z-50 bg-popover text-popover-foreground border rounded-lg shadow-lg overflow-hidden animate-fade-in">
+                  <div className="px-3 py-2 text-xs text-muted-foreground border-b">
+                    {locationInput ? "Matching destinations" : "Popular destinations"}
+                  </div>
+                  <ul className="max-h-72 overflow-y-auto">
+                    {suggestions.map((s, i) => (
+                      <li key={s}>
+                        <button
+                          type="button"
+                          onMouseDown={(e) => { e.preventDefault(); selectSuggestion(s); }}
+                          onMouseEnter={() => setHighlight(i)}
+                          className={`w-full text-left flex items-center gap-2 px-3 py-2 text-sm transition-colors ${
+                            highlight === i ? "bg-accent" : "hover:bg-accent/60"
+                          }`}
+                        >
+                          <MapPin className="h-4 w-4 text-muted-foreground shrink-0" />
+                          <span className="truncate">{s}</span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
             <div className="relative md:col-span-2">
               <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
