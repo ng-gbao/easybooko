@@ -38,9 +38,8 @@ const Navbar = () => {
     <nav className="sticky top-0 z-50 bg-card/95 backdrop-blur-lg border-b shadow-sm">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
-        <Link to="/" className="font-heading text-xl font-bold text-primary flex items-center gap-2 shrink-0">
-          <span className="text-2xl">🏨</span> Easybooko
-        </Link>
+        <Logo />
+
 
         {/* Desktop nav links */}
         <div className="hidden md:flex items-center gap-1 ml-8">
