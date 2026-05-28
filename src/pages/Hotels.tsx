@@ -58,6 +58,10 @@ const Hotels = () => {
     const loc = searchParams.get("location") || "";
     setLocation(loc);
     setLocationInput(loc);
+    const ci = searchParams.get("checkIn"); if (ci !== null) setCheckIn(ci);
+    const co = searchParams.get("checkOut"); if (co !== null) setCheckOut(co);
+    const g = searchParams.get("guests"); if (g) setGuests(Number(g));
+    const r = searchParams.get("rooms"); if (r) setRoomsCount(Number(r));
     setPage(1);
   }, [searchParams]);
 
