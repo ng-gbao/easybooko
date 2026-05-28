@@ -81,6 +81,7 @@ const Hotels = () => {
     minRating: effectiveMinRating,
     propertyType,
     amenities: amenities.length > 0 ? amenities : undefined,
+    freeCancellation: freeCancellation || undefined,
     hotelIds: roomType ? (roomTypeHotelIds || []) : undefined,
     sortBy,
     page,
@@ -88,6 +89,37 @@ const Hotels = () => {
   });
 
   const totalPages = data ? Math.ceil(data.totalCount / 16) : 1;
+
+  // Destination autocomplete
+  const { data: allLocations = [] } = useLocations();
+  const [showSuggest, setShowSuggest] = useState(false);
+  const [highlight, setHighlight] = useState(-1);
+  const suggestRef = useRef<HTMLDivElement | null>(null);
+  const suggestions = useMemo(() => {
+    const q = locationInput.trim().toLowerCase();
+    if (!q) return allLocations.slice(0, 8);
+    return allLocations.filter((l) => l.toLowerCase().includes(q)).slice(0, 8);
+  }, [locationInput, allLocations]);
+
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      if (suggestRef.current && !suggestRef.current.contains(e.target as Node)) {
+        setShowSuggest(false);
+      }
+    };
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, []);
+
+  const selectSuggestion = (loc: string) => {
+    setLocationInput(loc);
+    setLocation(loc);
+    setShowSuggest(false);
+    setPage(1);
+    const params = new URLSearchParams(searchParams);
+    params.set("location", loc);
+    setSearchParams(params, { replace: true });
+  };
 
   const applyLocationFilter = () => {
     setLocation(locationInput);
