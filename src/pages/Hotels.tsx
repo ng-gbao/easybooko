@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import HotelCard from "@/components/HotelCard";
 import PropertyTypeFilter from "@/components/PropertyTypeFilter";
 import { useHotels, type PropertyType, type SortBy } from "@/hooks/useHotels";
+import { useLocations } from "@/hooks/useLocations";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
