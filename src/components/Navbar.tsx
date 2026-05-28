@@ -12,6 +12,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { LogOut, User, Shield, Heart, Menu, X, Hotel, CalendarDays, Home } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { Logo } from "@/components/Logo";
 
 const navLinks = [
   { to: "/", label: "Home", icon: Home },
@@ -37,9 +38,8 @@ const Navbar = () => {
     <nav className="sticky top-0 z-50 bg-card/95 backdrop-blur-lg border-b shadow-sm">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
-        <Link to="/" className="font-heading text-xl font-bold text-primary flex items-center gap-2 shrink-0">
-          <span className="text-2xl">🏨</span> Easybooko
-        </Link>
+        <Logo />
+
 
         {/* Desktop nav links */}
         <div className="hidden md:flex items-center gap-1 ml-8">
