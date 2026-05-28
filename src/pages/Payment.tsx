@@ -54,47 +54,83 @@ const Payment = () => {
   };
 
   const handlePayment = async () => {
+    let methodValue: "qr_banking" | "visa" | "mastercard" = "qr_banking";
     if (paymentMethod === "card") {
       if (!cardNumber || !cardName || !expiry || !cvv) {
         toast.error("Please fill in all card details");
         return;
       }
+      methodValue = cardNumber.replace(/\s/g, "").startsWith("5") ? "mastercard" : "visa";
     }
 
     setProcessing(true);
 
-    // Simulate payment processing delay
+    // Step 1: create payment record (pending)
+    const txRef = `EBK-${Date.now()}-${Math.floor(Math.random() * 9999)}`;
+    const { data: payment, error: payErr } = await supabase
+      .from("payments")
+      .insert({
+        user_id: user.id,
+        amount: booking.totalPrice,
+        currency: "USD",
+        payment_method: methodValue,
+        status: "pending",
+        transaction_reference: txRef,
+      })
+      .select()
+      .single();
+
+    if (payErr || !payment) {
+      setProcessing(false);
+      toast.error(payErr?.message || "Could not initiate payment");
+      return;
+    }
+
+    // Step 2: simulate processing
     await new Promise((r) => setTimeout(r, 2000));
 
-    const { error } = await supabase.from("bookings").insert({
-      user_id: user.id,
-      hotel_id: booking.hotelId,
-      room_id: booking.roomId,
-      check_in: booking.checkIn,
-      check_out: booking.checkOut,
-      total_price: booking.totalPrice,
-      status: "confirmed",
-    });
+    // Step 3: create the booking (only after fake payment succeeds)
+    const { data: bookingRow, error: bookErr } = await supabase
+      .from("bookings")
+      .insert({
+        user_id: user.id,
+        hotel_id: booking.hotelId,
+        room_id: booking.roomId,
+        check_in: booking.checkIn,
+        check_out: booking.checkOut,
+        total_price: booking.totalPrice,
+        status: "confirmed",
+      })
+      .select()
+      .single();
+
+    if (bookErr) {
+      await supabase.from("payments").update({ status: "failed" }).eq("id", payment.id);
+      setProcessing(false);
+      toast.error(
+        bookErr.message.includes("already booked")
+          ? "This room is already booked for those dates!"
+          : bookErr.message
+      );
+      return;
+    }
+
+    // Step 4: mark payment paid + link to booking
+    await supabase
+      .from("payments")
+      .update({ status: "paid", booking_id: bookingRow.id })
+      .eq("id", payment.id);
 
     setProcessing(false);
-
-    if (error) {
-      toast.error(
-        error.message.includes("already booked")
-          ? "This room is already booked for those dates!"
-          : error.message
-      );
-    } else {
-      navigate("/booking-success", {
-        state: {
-          hotelName: booking.hotelName,
-          roomType: booking.roomType,
-          checkIn: booking.checkIn,
-          checkOut: booking.checkOut,
-          totalPrice: booking.totalPrice,
-        },
-      });
-    }
+    navigate("/booking-success", {
+      state: {
+        hotelName: booking.hotelName,
+        roomType: booking.roomType,
+        checkIn: booking.checkIn,
+        checkOut: booking.checkOut,
+        totalPrice: booking.totalPrice,
+      },
+    });
   };
 
   return (

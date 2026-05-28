@@ -32,10 +32,10 @@ const Hotels = () => {
   // Main search
   const [locationInput, setLocationInput] = useState(searchParams.get("location") || "");
   const [location, setLocation] = useState(searchParams.get("location") || "");
-  const [checkIn, setCheckIn] = useState("");
-  const [checkOut, setCheckOut] = useState("");
-  const [guests, setGuests] = useState(2);
-  const [roomsCount, setRoomsCount] = useState(1);
+  const [checkIn, setCheckIn] = useState(searchParams.get("checkIn") || "");
+  const [checkOut, setCheckOut] = useState(searchParams.get("checkOut") || "");
+  const [guests, setGuests] = useState(Number(searchParams.get("guests")) || 2);
+  const [roomsCount, setRoomsCount] = useState(Number(searchParams.get("rooms")) || 1);
 
   // Filters
   const [priceRange, setPriceRange] = useState([0, 1000]);
@@ -58,6 +58,10 @@ const Hotels = () => {
     const loc = searchParams.get("location") || "";
     setLocation(loc);
     setLocationInput(loc);
+    const ci = searchParams.get("checkIn"); if (ci !== null) setCheckIn(ci);
+    const co = searchParams.get("checkOut"); if (co !== null) setCheckOut(co);
+    const g = searchParams.get("guests"); if (g) setGuests(Number(g));
+    const r = searchParams.get("rooms"); if (r) setRoomsCount(Number(r));
     setPage(1);
   }, [searchParams]);
 
