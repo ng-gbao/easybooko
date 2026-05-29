@@ -105,7 +105,7 @@ const Payment = () => {
       .single();
 
     if (bookErr) {
-      await supabase.from("payments").update({ status: "failed" }).eq("id", payment.id);
+      await supabase.rpc("mark_payment_failed", { p_payment_id: payment.id });
       setProcessing(false);
       toast.error(
         bookErr.message.includes("already booked")
@@ -115,11 +115,16 @@ const Payment = () => {
       return;
     }
 
-    // Step 4: mark payment paid + link to booking
-    await supabase
-      .from("payments")
-      .update({ status: "paid", booking_id: bookingRow.id })
-      .eq("id", payment.id);
+    // Step 4: confirm payment server-side (validates ownership + amount)
+    const { error: confirmErr } = await supabase.rpc("confirm_payment", {
+      p_payment_id: payment.id,
+      p_booking_id: bookingRow.id,
+    });
+    if (confirmErr) {
+      setProcessing(false);
+      toast.error(confirmErr.message || "Payment confirmation failed");
+      return;
+    }
 
     setProcessing(false);
     navigate("/booking-success", {
