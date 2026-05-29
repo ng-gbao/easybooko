@@ -337,9 +337,13 @@ const HotelDetail = () => {
                     />
                   </PopoverContent>
                 </Popover>
-              </div>
+              {selectedRoomUnavailable && (
+                <div className="text-xs text-destructive bg-destructive/10 border border-destructive/20 rounded-md p-2">
+                  Selected room is sold out for these dates. Please choose another room or change dates.
+                </div>
+              )}
 
-              {nights > 0 && selectedRoomData && (
+              {nights > 0 && selectedRoomData && !selectedRoomUnavailable && (
                 <div className="bg-muted rounded-lg p-4 space-y-2">
                   <div className="flex justify-between text-sm">
                     <span>{selectedRoomData.type} room × {nights} nights</span>
@@ -355,9 +359,12 @@ const HotelDetail = () => {
               <Button
                 className="w-full"
                 size="lg"
-                disabled={!selectedRoom || !checkIn || !checkOut}
+                disabled={!selectedRoom || !checkIn || !checkOut || selectedRoomUnavailable}
                 onClick={handleBook}
               >
+                {user ? "Proceed to Payment" : "Sign in to Book"}
+              </Button>
+
                 {user ? "Proceed to Payment" : "Sign in to Book"}
               </Button>
             </CardContent>
