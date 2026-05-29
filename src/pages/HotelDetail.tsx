@@ -286,7 +286,6 @@ const HotelDetail = () => {
           </div>
         </div>
 
-        </div>
 
         {/* Booking sidebar */}
         <div>
