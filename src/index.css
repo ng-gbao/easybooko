@@ -6,7 +6,8 @@
 
 @layer base {
   :root {
-    --background: 210 33% 98%;
+    /* Warm cream background for subtle depth */
+    --background: 36 30% 97%;
     --foreground: 213 50% 10%;
 
     --card: 0 0% 100%;
@@ -15,23 +16,24 @@
     --popover: 0 0% 100%;
     --popover-foreground: 213 50% 10%;
 
-    --primary: 197 55% 40%;
+    --primary: 197 55% 36%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 30% 94%;
+    /* Soft beige secondary surfaces */
+    --secondary: 36 28% 93%;
     --secondary-foreground: 213 50% 10%;
 
-    --muted: 210 25% 93%;
-    --muted-foreground: 213 20% 46%;
+    --muted: 36 22% 92%;
+    --muted-foreground: 213 18% 42%;
 
-    --accent: 170 45% 54%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 32 85% 92%;
+    --accent-foreground: 24 60% 25%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 78% 52%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 214 25% 88%;
-    --input: 214 25% 88%;
+    --border: 36 18% 86%;
+    --input: 36 18% 86%;
     --ring: 197 55% 40%;
 
     --radius: 0.75rem;
@@ -46,11 +48,18 @@
     --sidebar-ring: 197 55% 40%;
 
     --ocean-deep: 213 60% 14%;
-    --ocean-teal: 197 55% 40%;
-    --ocean-aqua: 170 45% 54%;
+    --ocean-teal: 197 55% 36%;
+    --ocean-aqua: 170 45% 50%;
     --ocean-light: 185 40% 92%;
     --ocean-navy: 213 50% 10%;
+
+    /* Warm accent tokens for promos & CTAs */
+    --warm-cream: 36 45% 95%;
+    --warm-sand: 36 32% 90%;
+    --amber-accent: 32 92% 56%;
+    --amber-soft: 36 85% 90%;
   }
+
 
   .dark {
     --background: 213 50% 6%;

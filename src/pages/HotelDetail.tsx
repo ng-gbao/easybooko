@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
+
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -28,7 +29,7 @@ const HotelDetail = () => {
   const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
   const [checkIn, setCheckIn] = useState<Date>();
   const [checkOut, setCheckOut] = useState<Date>();
-  
+
   const [mainImage, setMainImage] = useState(0);
 
   const { data: hotel, isLoading: hotelLoading } = useQuery({
@@ -50,42 +51,71 @@ const HotelDetail = () => {
     enabled: !!id,
   });
 
-  // Get booked dates for selected room
-  const { data: bookedDates } = useQuery({
-    queryKey: ["booked-dates", selectedRoom],
+  // Fetch all confirmed bookings overlapping selected dates for this hotel's rooms
+  const roomIds = useMemo(() => (rooms || []).map((r) => r.id), [rooms]);
+  const ciStr = checkIn ? format(checkIn, "yyyy-MM-dd") : null;
+  const coStr = checkOut ? format(checkOut, "yyyy-MM-dd") : null;
+
+  const { data: overlappingBookings } = useQuery({
+    queryKey: ["overlapping-bookings", id, ciStr, coStr, roomIds.length],
     queryFn: async () => {
+      if (!ciStr || !coStr || roomIds.length === 0) return [];
+      // Overlap: existing.check_in < new.check_out AND existing.check_out > new.check_in
       const { data } = await supabase
         .from("bookings")
-        .select("check_in, check_out")
-        .eq("room_id", selectedRoom!)
-        .eq("status", "confirmed");
-      if (!data) return [];
-      const dates: Date[] = [];
-      data.forEach((b) => {
-        let d = new Date(b.check_in);
-        const end = new Date(b.check_out);
-        while (d < end) {
-          dates.push(new Date(d));
-          d.setDate(d.getDate() + 1);
-        }
-      });
-      return dates;
+        .select("room_id, check_in, check_out")
+        .in("room_id", roomIds)
+        .eq("status", "confirmed")
+        .lt("check_in", coStr)
+        .gt("check_out", ciStr);
+      return data || [];
     },
-    enabled: !!selectedRoom,
+    enabled: !!ciStr && !!coStr && roomIds.length > 0,
   });
+
+  // Booked room IDs for the selected window
+  const bookedRoomIds = useMemo(
+    () => new Set((overlappingBookings || []).map((b) => b.room_id)),
+    [overlappingBookings]
+  );
+
+  // Group rooms by type → compute availability summary
+  type RoomRow = NonNullable<typeof rooms>[number];
+  const datesSelected = !!checkIn && !!checkOut;
+
+  const roomGroups = useMemo(() => {
+    const map = new Map<string, { type: string; rooms: RoomRow[]; available: RoomRow[]; bookedCount: number }>();
+    (rooms || []).forEach((r) => {
+      const g = map.get(r.type) || { type: r.type, rooms: [] as RoomRow[], available: [] as RoomRow[], bookedCount: 0 };
+      g.rooms.push(r);
+      if (datesSelected && bookedRoomIds.has(r.id)) g.bookedCount++;
+      else g.available.push(r);
+      map.set(r.type, g);
+    });
+    const arr = Array.from(map.values());
+    // Sort: available types first, then limited, then sold out
+    const score = (g: typeof arr[number]) => {
+      if (!datesSelected) return 0;
+      if (g.available.length === 0) return 2;
+      if (g.available.length <= 2) return 1;
+      return 0;
+    };
+    return arr.sort((a, b) => score(a) - score(b));
+  }, [rooms, bookedRoomIds, datesSelected]);
 
   const selectedRoomData = rooms?.find((r) => r.id === selectedRoom);
   const nights = checkIn && checkOut ? differenceInDays(checkOut, checkIn) : 0;
   const totalPrice = selectedRoomData ? nights * selectedRoomData.price : 0;
-
-  const isDateBooked = (date: Date) => {
-    return bookedDates?.some((d) => d.toDateString() === date.toDateString()) || false;
-  };
+  const selectedRoomUnavailable = !!selectedRoom && datesSelected && bookedRoomIds.has(selectedRoom);
 
   const handleBook = () => {
     if (!user) { navigate("/login"); return; }
     if (!selectedRoom || !checkIn || !checkOut || !selectedRoomData) {
       toast.error("Please select a room and dates");
+      return;
+    }
+    if (selectedRoomUnavailable) {
+      toast.error("This room is sold out for the selected dates");
       return;
     }
     navigate("/payment", {
@@ -188,34 +218,75 @@ const HotelDetail = () => {
 
           {/* Rooms */}
           <div>
-            <h2 className="font-heading text-lg font-semibold mb-3">Available Rooms</h2>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="font-heading text-lg font-semibold">Available Rooms</h2>
+              {!datesSelected && (
+                <span className="text-xs text-muted-foreground">Select dates to check live availability</span>
+              )}
+            </div>
             <div className="space-y-3">
-              {rooms?.map((room) => (
-                <Card
-                  key={room.id}
-                  className={cn("cursor-pointer transition-all", selectedRoom === room.id ? "ring-2 ring-primary" : "hover:shadow-md")}
-                  onClick={() => setSelectedRoom(room.id)}
-                >
-                  <CardContent className="p-4 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <Users className="h-5 w-5 text-muted-foreground" />
-                      <div>
-                        <p className="font-semibold capitalize">{room.type} Room</p>
-                        <p className="text-sm text-muted-foreground">${room.price}/night</p>
+              {roomGroups.map((group) => {
+                const isSoldOut = datesSelected && group.available.length === 0;
+                const isLimited = datesSelected && group.available.length > 0 && group.available.length <= 2;
+                // Use the first available room (or first room if none) as the bookable representative
+                const repRoom = group.available[0] || group.rooms[0];
+                const isSelected = selectedRoom === repRoom.id;
+
+                return (
+                  <Card
+                    key={group.type}
+                    className={cn(
+                      "transition-all",
+                      isSoldOut ? "opacity-60" : "cursor-pointer",
+                      isSelected ? "ring-2 ring-primary" : !isSoldOut && "hover:shadow-md"
+                    )}
+                    onClick={() => { if (!isSoldOut) setSelectedRoom(repRoom.id); }}
+                  >
+                    <CardContent className="p-4 flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <Users className="h-5 w-5 text-muted-foreground shrink-0" />
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <p className="font-semibold capitalize">{group.type} Room</p>
+                            {datesSelected && (
+                              isSoldOut ? (
+                                <Badge variant="outline" className="border-destructive/40 text-destructive">Sold out</Badge>
+                              ) : isLimited ? (
+                                <Badge variant="outline" className="border-amber-500/50 text-amber-700 dark:text-amber-400">
+                                  Limited availability ({group.available.length} left)
+                                </Badge>
+                              ) : (
+                                <Badge variant="outline" className="border-emerald-500/40 text-emerald-700 dark:text-emerald-400">
+                                  Available
+                                </Badge>
+                              )
+                            )}
+                          </div>
+                          <p className="text-sm text-muted-foreground">${repRoom.price}/night</p>
+                          {isSoldOut && (
+                            <p className="text-xs text-destructive mt-1">Unavailable for selected dates</p>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                    <Button variant={selectedRoom === room.id ? "default" : "outline"} size="sm">
-                      {selectedRoom === room.id ? "Selected" : "Select"}
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
-              {rooms?.length === 0 && (
+                      <Button
+                        variant={isSelected ? "default" : "outline"}
+                        size="sm"
+                        disabled={isSoldOut}
+                        onClick={(e) => { e.stopPropagation(); if (!isSoldOut) setSelectedRoom(repRoom.id); }}
+                      >
+                        {isSoldOut ? "Sold out" : isSelected ? "Selected" : "Select"}
+                      </Button>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+              {roomGroups.length === 0 && (
                 <p className="text-muted-foreground text-center py-8">No rooms available.</p>
               )}
             </div>
           </div>
         </div>
+
 
         {/* Booking sidebar */}
         <div>
@@ -238,7 +309,8 @@ const HotelDetail = () => {
                       mode="single"
                       selected={checkIn}
                       onSelect={setCheckIn}
-                      disabled={(date) => date < new Date() || isDateBooked(date)}
+                      disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+
                       className="p-3 pointer-events-auto"
                     />
                   </PopoverContent>
@@ -259,14 +331,22 @@ const HotelDetail = () => {
                       mode="single"
                       selected={checkOut}
                       onSelect={setCheckOut}
-                      disabled={(date) => date <= (checkIn || new Date()) || isDateBooked(date)}
+                      disabled={(date) => date <= (checkIn || new Date())}
+
                       className="p-3 pointer-events-auto"
                     />
                   </PopoverContent>
                 </Popover>
               </div>
 
-              {nights > 0 && selectedRoomData && (
+
+              {selectedRoomUnavailable && (
+                <div className="text-xs text-destructive bg-destructive/10 border border-destructive/20 rounded-md p-2">
+                  Selected room is sold out for these dates. Please choose another room or change dates.
+                </div>
+              )}
+
+              {nights > 0 && selectedRoomData && !selectedRoomUnavailable && (
                 <div className="bg-muted rounded-lg p-4 space-y-2">
                   <div className="flex justify-between text-sm">
                     <span>{selectedRoomData.type} room × {nights} nights</span>
@@ -282,11 +362,13 @@ const HotelDetail = () => {
               <Button
                 className="w-full"
                 size="lg"
-                disabled={!selectedRoom || !checkIn || !checkOut}
+                disabled={!selectedRoom || !checkIn || !checkOut || selectedRoomUnavailable}
                 onClick={handleBook}
               >
                 {user ? "Proceed to Payment" : "Sign in to Book"}
               </Button>
+
+
             </CardContent>
           </Card>
         </div>
