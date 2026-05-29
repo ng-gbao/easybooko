@@ -365,8 +365,7 @@ const HotelDetail = () => {
                 {user ? "Proceed to Payment" : "Sign in to Book"}
               </Button>
 
-                {user ? "Proceed to Payment" : "Sign in to Book"}
-              </Button>
+
             </CardContent>
           </Card>
         </div>
