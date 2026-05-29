@@ -337,6 +337,9 @@ const HotelDetail = () => {
                     />
                   </PopoverContent>
                 </Popover>
+              </div>
+
+
               {selectedRoomUnavailable && (
                 <div className="text-xs text-destructive bg-destructive/10 border border-destructive/20 rounded-md p-2">
                   Selected room is sold out for these dates. Please choose another room or change dates.
