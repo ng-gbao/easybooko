@@ -309,7 +309,8 @@ const HotelDetail = () => {
                       mode="single"
                       selected={checkIn}
                       onSelect={setCheckIn}
-                      disabled={(date) => date < new Date() || isDateBooked(date)}
+                      disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+
                       className="p-3 pointer-events-auto"
                     />
                   </PopoverContent>
