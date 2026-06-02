@@ -9,8 +9,8 @@ const TravelActivities = () => (
   <section className="py-16">
     <div className="container mx-auto px-4">
       <div className="mb-8">
-        <h2 className="font-heading text-3xl md:text-4xl font-bold mb-2">Popular travel experiences</h2>
-        <p className="text-muted-foreground">Discover unforgettable things to do at your destination.</p>
+        <h2 className="font-heading text-3xl md:text-4xl font-bold mb-2">Trải nghiệm du lịch phổ biến</h2>
+        <p className="text-muted-foreground">Khám phá những hoạt động khó quên tại điểm đến của bạn.</p>
       </div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {experiences.map((a) => (

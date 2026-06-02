@@ -78,7 +78,7 @@ const SearchBar = ({
     goToHotels(loc);
   };
 
-  const guestLabel = `${adults + children} guest${adults + children > 1 ? "s" : ""} · ${rooms} room${rooms > 1 ? "s" : ""}`;
+  const guestLabel = `${adults + children} khách · ${rooms} phòng`;
 
   const Stepper = ({ label, value, setValue, min = 0 }: { label: string; value: number; setValue: (n: number) => void; min?: number }) => (
     <div className="flex items-center justify-between py-2">
@@ -101,7 +101,7 @@ const SearchBar = ({
         <div className="relative md:col-span-2" ref={suggestRef}>
           <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
           <Input
-            placeholder="Where are you going? e.g. Hanoi, Da Nang…"
+            placeholder="Bạn muốn đi đâu? Ví dụ: Hà Nội, Đà Nẵng…"
             value={location}
             onChange={(e) => { setLocation(e.target.value); setShowSuggest(true); setHighlight(-1); }}
             onFocus={() => setShowSuggest(true)}
@@ -119,7 +119,7 @@ const SearchBar = ({
           {showSuggest && suggestions.length > 0 && (
             <div className="absolute left-0 right-0 top-full mt-1 z-50 bg-popover text-popover-foreground border rounded-lg shadow-lg overflow-hidden animate-fade-in">
               <div className="px-3 py-2 text-xs text-muted-foreground border-b">
-                {location ? "Matching destinations" : "Popular destinations"}
+                {location ? "Điểm đến phù hợp" : "Điểm đến phổ biến"}
               </div>
               <ul className="max-h-72 overflow-y-auto">
                 {suggestions.map((s, i) => (
@@ -186,14 +186,14 @@ const SearchBar = ({
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-72 p-4" align="start">
-            <Stepper label="Adults" value={adults} setValue={setAdults} min={1} />
-            <Stepper label="Children" value={children} setValue={setChildren} min={0} />
-            <Stepper label="Rooms" value={rooms} setValue={setRooms} min={1} />
+            <Stepper label="Người lớn" value={adults} setValue={setAdults} min={1} />
+            <Stepper label="Trẻ em" value={children} setValue={setChildren} min={0} />
+            <Stepper label="Số phòng" value={rooms} setValue={setRooms} min={1} />
           </PopoverContent>
         </Popover>
       </div>
       <Button onClick={() => goToHotels()} className="w-full md:w-auto mt-3" size="lg">
-        <Search className="h-4 w-4 mr-2" /> Search Hotels
+        <Search className="h-4 w-4 mr-2" /> Tìm khách sạn
       </Button>
     </div>
   );

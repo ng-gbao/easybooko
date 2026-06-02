@@ -42,7 +42,7 @@ const HotelCard = ({ hotel }: HotelCardProps) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["wishlist"] });
-      toast.success(isWishlisted ? "Removed from wishlist" : "Added to wishlist");
+      toast.success(isWishlisted ? "Đã xoá khỏi yêu thích" : "Đã thêm vào yêu thích");
     },
   });
 
@@ -62,12 +62,13 @@ const HotelCard = ({ hotel }: HotelCardProps) => {
           <button
             onClick={(e) => { e.preventDefault(); toggleWishlist.mutate(); }}
             className="absolute top-3 right-3 p-2 rounded-full bg-card/80 backdrop-blur-sm hover:bg-card transition-colors"
+            aria-label="Yêu thích"
           >
             <Heart className={`h-4 w-4 ${isWishlisted ? "fill-destructive text-destructive" : "text-muted-foreground"}`} />
           </button>
         )}
         <Badge className="absolute bottom-3 left-3 bg-primary/90 backdrop-blur-sm">
-          ${hotel.price_per_night}/night
+          ${hotel.price_per_night}/đêm
         </Badge>
       </div>
       <Link to={`/hotel/${hotel.id}`}>
@@ -85,10 +86,10 @@ const HotelCard = ({ hotel }: HotelCardProps) => {
           </div>
           <div className="flex gap-1.5 mt-3 flex-wrap">
             <Badge variant="outline" className="text-[10px] border-emerald-500/40 text-emerald-700 dark:text-emerald-400">
-              Free cancellation
+              Miễn phí huỷ phòng
             </Badge>
             <Badge variant="outline" className="text-[10px] border-sky-500/40 text-sky-700 dark:text-sky-400">
-              Pay at hotel
+              Thanh toán tại khách sạn
             </Badge>
           </div>
           {hotel.amenities && hotel.amenities.length > 0 && (

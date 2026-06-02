@@ -1,5 +1,5 @@
-import { Link } from "react-router-dom";
 import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin } from "lucide-react";
+import { Logo } from "@/components/Logo";
 
 const Footer = () => {
   return (
@@ -8,11 +8,9 @@ const Footer = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="space-y-4">
-            <Link to="/" className="font-heading text-xl font-bold flex items-center gap-2">
-              <span className="text-2xl">🏨</span> Easybooko
-            </Link>
+            <Logo tone="dark" />
             <p className="text-sm opacity-70 leading-relaxed">
-              Discover handpicked hotels worldwide. Book with confidence and enjoy unforgettable stays.
+              Khám phá khách sạn được tuyển chọn khắp Việt Nam và thế giới. Đặt phòng tự tin, tận hưởng kỳ nghỉ trọn vẹn.
             </p>
             <div className="flex gap-3">
               {[
@@ -33,50 +31,47 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Company */}
           <div>
-            <h4 className="font-heading font-semibold mb-4">Company</h4>
+            <h4 className="font-heading font-semibold mb-4">Về chúng tôi</h4>
             <ul className="space-y-2.5 text-sm opacity-70">
-              <li><a href="#" className="hover:opacity-100 transition-opacity">About Us</a></li>
-              <li><a href="#" className="hover:opacity-100 transition-opacity">Careers</a></li>
-              <li><a href="#" className="hover:opacity-100 transition-opacity">Press</a></li>
-              <li><a href="#" className="hover:opacity-100 transition-opacity">Blog</a></li>
+              <li><a href="#" className="hover:opacity-100 transition-opacity">Giới thiệu</a></li>
+              <li><a href="#" className="hover:opacity-100 transition-opacity">Tuyển dụng</a></li>
+              <li><a href="#" className="hover:opacity-100 transition-opacity">Báo chí</a></li>
+              <li><a href="#" className="hover:opacity-100 transition-opacity">Blog du lịch</a></li>
             </ul>
           </div>
 
-          {/* Support */}
           <div>
-            <h4 className="font-heading font-semibold mb-4">Support</h4>
+            <h4 className="font-heading font-semibold mb-4">Hỗ trợ</h4>
             <ul className="space-y-2.5 text-sm opacity-70">
-              <li><a href="#" className="hover:opacity-100 transition-opacity">Help Center</a></li>
-              <li><a href="#" className="hover:opacity-100 transition-opacity">Terms of Service</a></li>
-              <li><a href="#" className="hover:opacity-100 transition-opacity">Privacy Policy</a></li>
-              <li><a href="#" className="hover:opacity-100 transition-opacity">Cancellation Policy</a></li>
+              <li><a href="#" className="hover:opacity-100 transition-opacity">Trung tâm trợ giúp</a></li>
+              <li><a href="#" className="hover:opacity-100 transition-opacity">Điều khoản dịch vụ</a></li>
+              <li><a href="#" className="hover:opacity-100 transition-opacity">Chính sách bảo mật</a></li>
+              <li><a href="#" className="hover:opacity-100 transition-opacity">Chính sách huỷ phòng</a></li>
             </ul>
           </div>
 
-          {/* Contact */}
           <div>
-            <h4 className="font-heading font-semibold mb-4">Contact</h4>
+            <h4 className="font-heading font-semibold mb-4">Liên hệ</h4>
             <ul className="space-y-3 text-sm opacity-70">
               <li className="flex items-center gap-2">
-                <Mail className="h-4 w-4 shrink-0" /> support@stayflow.com
+                <Mail className="h-4 w-4 shrink-0" /> support@easybooko.vn
               </li>
               <li className="flex items-center gap-2">
-                <Phone className="h-4 w-4 shrink-0" /> +1 (800) 555-0199
+                <Phone className="h-4 w-4 shrink-0" /> +84 28 7300 1199
               </li>
               <li className="flex items-start gap-2">
-                <MapPin className="h-4 w-4 shrink-0 mt-0.5" /> 123 Travel Street, San Francisco, CA 94102
+                <MapPin className="h-4 w-4 shrink-0 mt-0.5" /> 123 Nguyễn Huệ, Quận 1, TP. Hồ Chí Minh
               </li>
             </ul>
           </div>
         </div>
 
         <div className="border-t border-white/10 mt-10 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm opacity-50">
-          <p>© {new Date().getFullYear()} Easybooko. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Easybooko. Bảo lưu mọi quyền.</p>
           <div className="flex gap-4">
-            <a href="#" className="hover:opacity-100 transition-opacity">Terms</a>
-            <a href="#" className="hover:opacity-100 transition-opacity">Privacy</a>
+            <a href="#" className="hover:opacity-100 transition-opacity">Điều khoản</a>
+            <a href="#" className="hover:opacity-100 transition-opacity">Bảo mật</a>
             <a href="#" className="hover:opacity-100 transition-opacity">Cookies</a>
           </div>
         </div>

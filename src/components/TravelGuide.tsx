@@ -10,8 +10,8 @@ const TravelGuide = () => (
   <section className="py-16 bg-stone-50 dark:bg-stone-950/30">
     <div className="container mx-auto px-4">
       <div className="mb-8">
-        <h2 className="font-heading text-3xl md:text-4xl font-bold mb-2">Travel guide & tips</h2>
-        <p className="text-muted-foreground">Insider stories and practical advice for your next adventure.</p>
+        <h2 className="font-heading text-3xl md:text-4xl font-bold mb-2">Cẩm nang & mẹo du lịch</h2>
+        <p className="text-muted-foreground">Câu chuyện từ người trong nghề và lời khuyên hữu ích cho hành trình kế tiếp.</p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {guides.map((a) => (

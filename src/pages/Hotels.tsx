@@ -18,12 +18,19 @@ import { Star, SlidersHorizontal, X, Wifi, Car, Coffee, Waves, Snowflake } from 
 
 const AMENITY_OPTIONS = [
   { key: "wifi", label: "WiFi", icon: Wifi },
-  { key: "breakfast", label: "Breakfast", icon: Coffee },
-  { key: "parking", label: "Parking", icon: Car },
-  { key: "pool", label: "Pool", icon: Waves },
-  { key: "air_conditioner", label: "Air conditioner", icon: Snowflake },
+  { key: "breakfast", label: "Bữa sáng", icon: Coffee },
+  { key: "parking", label: "Bãi đỗ xe", icon: Car },
+  { key: "pool", label: "Hồ bơi", icon: Waves },
+  { key: "air_conditioner", label: "Máy lạnh", icon: Snowflake },
 ];
 const ROOM_TYPES = ["single", "double", "suite", "deluxe", "family"];
+const ROOM_TYPE_LABELS: Record<string, string> = {
+  single: "Phòng đơn",
+  double: "Phòng đôi",
+  suite: "Suite",
+  deluxe: "Deluxe",
+  family: "Phòng gia đình",
+};
 const STAR_RATINGS = [5, 4, 3];
 
 const Hotels = () => {
@@ -106,10 +113,10 @@ const Hotels = () => {
   const activeChips = useMemo(() => {
     const chips: { label: string; clear: () => void }[] = [];
     if (priceRange[0] > 0 || priceRange[1] < 1000) chips.push({ label: `$${priceRange[0]}–$${priceRange[1]}`, clear: () => setPriceRange([0, 1000]) });
-    if (starRating) chips.push({ label: `${starRating}★ hotels`, clear: () => setStarRating(undefined) });
-    if (minReviewScore) chips.push({ label: `Score ${minReviewScore}+`, clear: () => setMinReviewScore(undefined) });
-    if (roomType) chips.push({ label: `Room: ${roomType}`, clear: () => setRoomType(undefined) });
-    if (freeCancellation) chips.push({ label: "Free cancellation", clear: () => setFreeCancellation(false) });
+    if (starRating) chips.push({ label: `Khách sạn ${starRating}★`, clear: () => setStarRating(undefined) });
+    if (minReviewScore) chips.push({ label: `Điểm ${minReviewScore}+`, clear: () => setMinReviewScore(undefined) });
+    if (roomType) chips.push({ label: `Phòng: ${ROOM_TYPE_LABELS[roomType] || roomType}`, clear: () => setRoomType(undefined) });
+    if (freeCancellation) chips.push({ label: "Miễn phí huỷ phòng", clear: () => setFreeCancellation(false) });
     amenities.forEach((a) => chips.push({ label: AMENITY_OPTIONS.find(o => o.key === a)?.label || a, clear: () => toggleAmenity(a) }));
     return chips;
   }, [priceRange, starRating, minReviewScore, roomType, freeCancellation, amenities]);
@@ -119,8 +126,8 @@ const Hotels = () => {
       {/* Page header */}
       <section className="bg-gradient-to-br from-ocean-deep via-ocean-deep to-primary text-primary-foreground py-12 md:py-16">
         <div className="container mx-auto px-4">
-          <h1 className="font-heading text-3xl md:text-4xl font-bold mb-2">Find your stay</h1>
-          <p className="opacity-80 mb-6">Search hotels, apartments, resorts and villas worldwide.</p>
+          <h1 className="font-heading text-3xl md:text-4xl font-bold mb-2">Tìm chỗ nghỉ của bạn</h1>
+          <p className="opacity-80 mb-6">Khách sạn, căn hộ, resort và villa khắp Việt Nam và thế giới.</p>
 
           {/* Shared search bar — matches Home page */}
           <SearchBar
@@ -154,21 +161,21 @@ const Hotels = () => {
           <div className="sticky top-16 z-20 -mx-4 px-4 py-3 mb-4 bg-background/85 backdrop-blur-md border-b">
             <div className="flex items-center justify-between flex-wrap gap-3">
               <h2 className="font-heading text-lg font-semibold">
-                {data ? `${data.totalCount} stays` : "Loading..."}
-                {location && <span className="text-muted-foreground font-normal"> in "{location}"</span>}
+                {data ? `${data.totalCount} chỗ nghỉ` : "Đang tải..."}
+                {location && <span className="text-muted-foreground font-normal"> tại "{location}"</span>}
               </h2>
               <div className="flex items-center gap-2">
                 <Button variant="outline" size="sm" className="lg:hidden" onClick={() => setShowFilters(!showFilters)}>
-                  <SlidersHorizontal className="h-4 w-4 mr-1" /> Filters
+                  <SlidersHorizontal className="h-4 w-4 mr-1" /> Bộ lọc
                 </Button>
                 <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortBy)}>
-                  <SelectTrigger className="w-[180px] h-9"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="w-[200px] h-9"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="popularity">Popularity</SelectItem>
-                    <SelectItem value="rating_desc">Highest Rating</SelectItem>
-                    <SelectItem value="price_asc">Price: Low → High</SelectItem>
-                    <SelectItem value="price_desc">Price: High → Low</SelectItem>
-                    <SelectItem value="distance">Distance</SelectItem>
+                    <SelectItem value="popularity">Phổ biến</SelectItem>
+                    <SelectItem value="rating_desc">Đánh giá cao nhất</SelectItem>
+                    <SelectItem value="price_asc">Giá: Thấp → Cao</SelectItem>
+                    <SelectItem value="price_desc">Giá: Cao → Thấp</SelectItem>
+                    <SelectItem value="distance">Khoảng cách</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -195,7 +202,7 @@ const Hotels = () => {
                     </button>
                   </Badge>
                 ))}
-                <Button variant="ghost" size="sm" className="h-6 text-xs" onClick={clearAllFilters}>Clear all</Button>
+                <Button variant="ghost" size="sm" className="h-6 text-xs" onClick={clearAllFilters}>Xoá tất cả</Button>
               </div>
             )}
           </div>
@@ -229,9 +236,9 @@ const Hotels = () => {
           ) : data?.hotels.length === 0 ? (
             <div className="text-center py-20 bg-muted/30 rounded-xl animate-fade-in">
               <div className="text-6xl mb-4">🔍</div>
-              <h3 className="font-heading text-xl font-semibold mb-2">No stays match your filters</h3>
-              <p className="text-muted-foreground mb-6">Try widening your price range or removing some filters.</p>
-              <Button onClick={clearAllFilters}>Clear all filters</Button>
+              <h3 className="font-heading text-xl font-semibold mb-2">Không có chỗ nghỉ nào khớp bộ lọc</h3>
+              <p className="text-muted-foreground mb-6">Thử nới rộng khoảng giá hoặc xoá bớt bộ lọc.</p>
+              <Button onClick={clearAllFilters}>Xoá tất cả bộ lọc</Button>
             </div>
           ) : (
             <>
@@ -244,13 +251,13 @@ const Hotels = () => {
               {totalPages > 1 && (
                 <div className="flex justify-center gap-2 mt-10">
                   <Button variant="outline" disabled={page === 1} onClick={() => setPage(page - 1)}>
-                    Previous
+                    Trang trước
                   </Button>
                   <span className="flex items-center px-4 text-sm text-muted-foreground">
-                    Page {page} of {totalPages}
+                    Trang {page} / {totalPages}
                   </span>
                   <Button variant="outline" disabled={page >= totalPages} onClick={() => setPage(page + 1)}>
-                    Next
+                    Trang sau
                   </Button>
                 </div>
               )}
@@ -279,19 +286,19 @@ const FilterPanel = ({
 }: FPProps) => (
   <div className="space-y-6">
     <div className="flex items-center justify-between">
-      <h3 className="font-heading font-semibold">Filters</h3>
-      <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={clearAllFilters}>Reset</Button>
+      <h3 className="font-heading font-semibold">Bộ lọc</h3>
+      <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={clearAllFilters}>Đặt lại</Button>
     </div>
 
     <div>
       <Label className="text-sm font-medium mb-3 block">
-        Price: ${priceRange[0]} – ${priceRange[1]}
+        Giá: ${priceRange[0]} – ${priceRange[1]}
       </Label>
       <Slider value={priceRange} onValueChange={setPriceRange} min={0} max={1000} step={25} />
     </div>
 
     <div>
-      <Label className="text-sm font-medium mb-3 block">Star rating</Label>
+      <Label className="text-sm font-medium mb-3 block">Hạng sao</Label>
       <div className="flex flex-wrap gap-2">
         {STAR_RATINGS.map((s) => (
           <Button key={s} size="sm" variant={starRating === s ? "default" : "outline"}
@@ -303,7 +310,7 @@ const FilterPanel = ({
     </div>
 
     <div>
-      <Label className="text-sm font-medium mb-3 block">Review score</Label>
+      <Label className="text-sm font-medium mb-3 block">Điểm đánh giá</Label>
       <div className="flex flex-wrap gap-2">
         {[4.5, 4, 3.5].map((s) => (
           <Button key={s} size="sm" variant={minReviewScore === s ? "default" : "outline"}
@@ -315,20 +322,20 @@ const FilterPanel = ({
     </div>
 
     <div>
-      <Label className="text-sm font-medium mb-3 block">Room type</Label>
+      <Label className="text-sm font-medium mb-3 block">Loại phòng</Label>
       <Select value={roomType || "any"} onValueChange={(v) => setRoomType(v === "any" ? undefined : v)}>
         <SelectTrigger><SelectValue /></SelectTrigger>
         <SelectContent>
-          <SelectItem value="any">Any room type</SelectItem>
+          <SelectItem value="any">Tất cả loại phòng</SelectItem>
           {ROOM_TYPES.map((rt) => (
-            <SelectItem key={rt} value={rt} className="capitalize">{rt}</SelectItem>
+            <SelectItem key={rt} value={rt}>{ROOM_TYPE_LABELS[rt] || rt}</SelectItem>
           ))}
         </SelectContent>
       </Select>
     </div>
 
     <div>
-      <Label className="text-sm font-medium mb-3 block">Amenities</Label>
+      <Label className="text-sm font-medium mb-3 block">Tiện nghi</Label>
       <div className="space-y-2">
         {AMENITY_OPTIONS.map(({ key, label, icon: Icon }) => (
           <label key={key} className="flex items-center gap-2 cursor-pointer hover:bg-accent/50 rounded p-1 transition-colors">
@@ -341,10 +348,10 @@ const FilterPanel = ({
     </div>
 
     <div>
-      <Label className="text-sm font-medium mb-3 block">Other</Label>
+      <Label className="text-sm font-medium mb-3 block">Khác</Label>
       <label className="flex items-center gap-2 cursor-pointer hover:bg-accent/50 rounded p-1 transition-colors">
         <Checkbox checked={freeCancellation} onCheckedChange={(c) => setFreeCancellation(!!c)} />
-        <span className="text-sm">Free cancellation</span>
+        <span className="text-sm">Miễn phí huỷ phòng</span>
       </label>
     </div>
   </div>

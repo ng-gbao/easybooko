@@ -15,10 +15,10 @@ const HeroSearch = () => {
 
       <div className="relative container mx-auto px-4 py-20 md:py-32">
         <h1 className="font-heading text-3xl md:text-5xl font-bold mb-4 max-w-2xl">
-          Find your perfect stay, anywhere in the world
+          Tìm chỗ nghỉ hoàn hảo cho chuyến đi của bạn
         </h1>
         <p className="text-lg md:text-xl opacity-80 mb-10 max-w-lg">
-          Discover handpicked hotels with unbeatable prices and world-class service.
+          Khám phá khách sạn được tuyển chọn khắp Việt Nam — giá tốt, dịch vụ đẳng cấp.
         </p>
         <SearchBar variant="hero" />
       </div>

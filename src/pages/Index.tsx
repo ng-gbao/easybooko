@@ -24,12 +24,12 @@ const Index = () => {
       <section id="results" className="container mx-auto px-4 py-12 md:py-16 scroll-mt-20">
         <div className="flex items-end justify-between mb-8 flex-wrap gap-4">
           <div>
-            <h2 className="font-heading text-2xl md:text-3xl font-bold">Featured hotels</h2>
-            <p className="text-muted-foreground mt-1">Top-rated stays handpicked for you</p>
+            <h2 className="font-heading text-2xl md:text-3xl font-bold">Khách sạn nổi bật</h2>
+            <p className="text-muted-foreground mt-1">Những chỗ nghỉ được đánh giá cao nhất, tuyển chọn dành cho bạn</p>
           </div>
           <Link to="/hotels">
             <Button variant="outline">
-              View all hotels <ArrowRight className="h-4 w-4 ml-1" />
+              Xem tất cả <ArrowRight className="h-4 w-4 ml-1" />
             </Button>
           </Link>
         </div>
