@@ -111,11 +111,11 @@ const HotelDetail = () => {
   const handleBook = () => {
     if (!user) { navigate("/login"); return; }
     if (!selectedRoom || !checkIn || !checkOut || !selectedRoomData) {
-      toast.error("Please select a room and dates");
+      toast.error("Vui lòng chọn phòng và ngày");
       return;
     }
     if (selectedRoomUnavailable) {
-      toast.error("This room is sold out for the selected dates");
+      toast.error("Phòng này đã hết chỗ cho ngày bạn chọn");
       return;
     }
     navigate("/payment", {
@@ -145,7 +145,7 @@ const HotelDetail = () => {
     );
   }
 
-  if (!hotel) return <div className="container mx-auto px-4 py-20 text-center text-muted-foreground">Hotel not found.</div>;
+  if (!hotel) return <div className="container mx-auto px-4 py-20 text-center text-muted-foreground">Không tìm thấy khách sạn.</div>;
 
   const images = hotel.images?.length ? hotel.images : [
     "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80",
@@ -189,13 +189,13 @@ const HotelDetail = () => {
             </div>
             <div className="flex flex-wrap gap-2 mt-3">
               <Badge variant="outline" className="border-emerald-500/40 text-emerald-700 dark:text-emerald-400">
-                Free cancellation
+                Miễn phí huỷ phòng
               </Badge>
               <Badge variant="outline" className="border-sky-500/40 text-sky-700 dark:text-sky-400">
-                Pay at hotel
+                Thanh toán tại khách sạn
               </Badge>
               <Badge variant="outline" className="border-amber-500/40 text-amber-700 dark:text-amber-400">
-                No prepayment needed
+                Không cần trả trước
               </Badge>
             </div>
           </div>
@@ -205,7 +205,7 @@ const HotelDetail = () => {
           {/* Amenities */}
           {hotel.amenities && hotel.amenities.length > 0 && (
             <div>
-              <h2 className="font-heading text-lg font-semibold mb-3">Amenities</h2>
+              <h2 className="font-heading text-lg font-semibold mb-3">Tiện nghi</h2>
               <div className="flex flex-wrap gap-3">
                 {hotel.amenities.map((a) => (
                   <Badge key={a} variant="secondary" className="px-3 py-1.5 text-sm gap-1.5">
@@ -219,9 +219,9 @@ const HotelDetail = () => {
           {/* Rooms */}
           <div>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="font-heading text-lg font-semibold">Available Rooms</h2>
+              <h2 className="font-heading text-lg font-semibold">Phòng còn trống</h2>
               {!datesSelected && (
-                <span className="text-xs text-muted-foreground">Select dates to check live availability</span>
+                <span className="text-xs text-muted-foreground">Chọn ngày để xem tình trạng phòng theo thời gian thực</span>
               )}
             </div>
             <div className="space-y-3">
@@ -247,24 +247,24 @@ const HotelDetail = () => {
                         <Users className="h-5 w-5 text-muted-foreground shrink-0" />
                         <div className="min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <p className="font-semibold capitalize">{group.type} Room</p>
+                            <p className="font-semibold capitalize">Phòng {group.type}</p>
                             {datesSelected && (
                               isSoldOut ? (
-                                <Badge variant="outline" className="border-destructive/40 text-destructive">Sold out</Badge>
+                                <Badge variant="outline" className="border-destructive/40 text-destructive">Hết phòng</Badge>
                               ) : isLimited ? (
                                 <Badge variant="outline" className="border-amber-500/50 text-amber-700 dark:text-amber-400">
-                                  Limited availability ({group.available.length} left)
+                                  Sắp hết ({group.available.length} phòng)
                                 </Badge>
                               ) : (
                                 <Badge variant="outline" className="border-emerald-500/40 text-emerald-700 dark:text-emerald-400">
-                                  Available
+                                  Còn phòng
                                 </Badge>
                               )
                             )}
                           </div>
-                          <p className="text-sm text-muted-foreground">${repRoom.price}/night</p>
+                          <p className="text-sm text-muted-foreground">${repRoom.price}/đêm</p>
                           {isSoldOut && (
-                            <p className="text-xs text-destructive mt-1">Unavailable for selected dates</p>
+                            <p className="text-xs text-destructive mt-1">Không khả dụng cho ngày đã chọn</p>
                           )}
                         </div>
                       </div>
@@ -274,14 +274,14 @@ const HotelDetail = () => {
                         disabled={isSoldOut}
                         onClick={(e) => { e.stopPropagation(); if (!isSoldOut) setSelectedRoom(repRoom.id); }}
                       >
-                        {isSoldOut ? "Sold out" : isSelected ? "Selected" : "Select"}
+                        {isSoldOut ? "Hết phòng" : isSelected ? "Đã chọn" : "Chọn"}
                       </Button>
                     </CardContent>
                   </Card>
                 );
               })}
               {roomGroups.length === 0 && (
-                <p className="text-muted-foreground text-center py-8">No rooms available.</p>
+                <p className="text-muted-foreground text-center py-8">Không có phòng nào.</p>
               )}
             </div>
           </div>
@@ -292,7 +292,7 @@ const HotelDetail = () => {
         <div>
           <Card className="sticky top-24">
             <CardHeader>
-              <CardTitle className="font-heading text-lg">Book This Hotel</CardTitle>
+              <CardTitle className="font-heading text-lg">Đặt phòng tại đây</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
@@ -301,7 +301,7 @@ const HotelDetail = () => {
                   <PopoverTrigger asChild>
                     <Button variant="outline" className={cn("w-full justify-start", !checkIn && "text-muted-foreground")}>
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {checkIn ? format(checkIn, "PPP") : "Select date"}
+                      {checkIn ? format(checkIn, "PPP") : "Chọn ngày"}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
@@ -323,7 +323,7 @@ const HotelDetail = () => {
                   <PopoverTrigger asChild>
                     <Button variant="outline" className={cn("w-full justify-start", !checkOut && "text-muted-foreground")}>
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {checkOut ? format(checkOut, "PPP") : "Select date"}
+                      {checkOut ? format(checkOut, "PPP") : "Chọn ngày"}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
@@ -342,18 +342,18 @@ const HotelDetail = () => {
 
               {selectedRoomUnavailable && (
                 <div className="text-xs text-destructive bg-destructive/10 border border-destructive/20 rounded-md p-2">
-                  Selected room is sold out for these dates. Please choose another room or change dates.
+                  Phòng đã chọn không còn trống trong khoảng ngày này. Vui lòng chọn phòng khác hoặc đổi ngày.
                 </div>
               )}
 
               {nights > 0 && selectedRoomData && !selectedRoomUnavailable && (
                 <div className="bg-muted rounded-lg p-4 space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span>{selectedRoomData.type} room × {nights} nights</span>
+                    <span className="capitalize">Phòng {selectedRoomData.type} × {nights} đêm</span>
                     <span>${totalPrice}</span>
                   </div>
                   <div className="flex justify-between font-semibold border-t pt-2">
-                    <span>Total</span>
+                    <span>Tổng cộng</span>
                     <span className="text-primary text-lg">${totalPrice}</span>
                   </div>
                 </div>
@@ -365,7 +365,7 @@ const HotelDetail = () => {
                 disabled={!selectedRoom || !checkIn || !checkOut || selectedRoomUnavailable}
                 onClick={handleBook}
               >
-                {user ? "Proceed to Payment" : "Sign in to Book"}
+                {user ? "Tiến hành thanh toán" : "Đăng nhập để đặt phòng"}
               </Button>
 
 

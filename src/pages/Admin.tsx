@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -16,6 +16,12 @@ import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Hotel, BedDouble, BookOpen, Users, Shield, ShieldOff } from "lucide-react";
 import { format } from "date-fns";
 
+const STATUS_LABEL: Record<string, string> = {
+  confirmed: "Đã xác nhận",
+  cancelled: "Đã huỷ",
+  pending: "Đang chờ",
+};
+
 const Admin = () => {
   const { user, isAdmin, loading: authLoading } = useAuth();
 
@@ -24,13 +30,13 @@ const Admin = () => {
 
   return (
     <div className="container mx-auto px-4 py-10">
-      <h1 className="font-heading text-3xl font-bold mb-8">Admin Panel</h1>
+      <h1 className="font-heading text-3xl font-bold mb-8">Trang Admin</h1>
       <Tabs defaultValue="hotels">
         <TabsList className="mb-6">
-          <TabsTrigger value="hotels"><Hotel className="h-4 w-4 mr-1" /> Hotels</TabsTrigger>
-          <TabsTrigger value="rooms"><BedDouble className="h-4 w-4 mr-1" /> Rooms</TabsTrigger>
-          <TabsTrigger value="bookings"><BookOpen className="h-4 w-4 mr-1" /> Bookings</TabsTrigger>
-          <TabsTrigger value="users"><Users className="h-4 w-4 mr-1" /> Users</TabsTrigger>
+          <TabsTrigger value="hotels"><Hotel className="h-4 w-4 mr-1" /> Khách sạn</TabsTrigger>
+          <TabsTrigger value="rooms"><BedDouble className="h-4 w-4 mr-1" /> Phòng</TabsTrigger>
+          <TabsTrigger value="bookings"><BookOpen className="h-4 w-4 mr-1" /> Đặt phòng</TabsTrigger>
+          <TabsTrigger value="users"><Users className="h-4 w-4 mr-1" /> Người dùng</TabsTrigger>
         </TabsList>
 
         <TabsContent value="hotels"><HotelsTab /></TabsContent>
@@ -82,7 +88,7 @@ function HotelsTab() {
       setOpen(false);
       setEditing(null);
       resetForm();
-      toast.success(editing ? "Hotel updated" : "Hotel added");
+      toast.success(editing ? "Đã cập nhật khách sạn" : "Đã thêm khách sạn");
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -94,7 +100,7 @@ function HotelsTab() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-hotels"] });
-      toast.success("Hotel deleted");
+      toast.success("Đã xoá khách sạn");
     },
   });
 
@@ -118,36 +124,36 @@ function HotelsTab() {
   return (
     <div>
       <div className="flex justify-between mb-4">
-        <h2 className="font-heading text-xl font-semibold">Hotels ({hotels?.length || 0})</h2>
+        <h2 className="font-heading text-xl font-semibold">Khách sạn ({hotels?.length || 0})</h2>
         <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setEditing(null); resetForm(); } }}>
           <DialogTrigger asChild>
-            <Button><Plus className="h-4 w-4 mr-1" /> Add Hotel</Button>
+            <Button><Plus className="h-4 w-4 mr-1" /> Thêm khách sạn</Button>
           </DialogTrigger>
           <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>{editing ? "Edit Hotel" : "Add Hotel"}</DialogTitle>
+              <DialogTitle>{editing ? "Sửa khách sạn" : "Thêm khách sạn"}</DialogTitle>
             </DialogHeader>
             <div className="space-y-3">
-              <Input placeholder="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-              <Input placeholder="Location" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} />
-              <Textarea placeholder="Description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+              <Input placeholder="Tên khách sạn" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+              <Input placeholder="Địa điểm" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} />
+              <Textarea placeholder="Mô tả" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
               <div className="grid grid-cols-2 gap-3">
-                <Input placeholder="Price/night" type="number" value={form.price_per_night} onChange={(e) => setForm({ ...form, price_per_night: e.target.value })} />
-                <Input placeholder="Rating (0-5)" type="number" step="0.1" value={form.rating} onChange={(e) => setForm({ ...form, rating: e.target.value })} />
+                <Input placeholder="Giá/đêm" type="number" value={form.price_per_night} onChange={(e) => setForm({ ...form, price_per_night: e.target.value })} />
+                <Input placeholder="Đánh giá (0-5)" type="number" step="0.1" value={form.rating} onChange={(e) => setForm({ ...form, rating: e.target.value })} />
               </div>
               <Select value={form.property_type} onValueChange={(v) => setForm({ ...form, property_type: v })}>
-                <SelectTrigger><SelectValue placeholder="Property type" /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder="Loại hình lưu trú" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="hotel">Hotel</SelectItem>
-                  <SelectItem value="apartment">Apartment</SelectItem>
+                  <SelectItem value="hotel">Khách sạn</SelectItem>
+                  <SelectItem value="apartment">Căn hộ</SelectItem>
                   <SelectItem value="resort">Resort</SelectItem>
                   <SelectItem value="villa">Villa</SelectItem>
                 </SelectContent>
               </Select>
-              <Input placeholder="Amenities (comma-separated)" value={form.amenities} onChange={(e) => setForm({ ...form, amenities: e.target.value })} />
-              <Input placeholder="Image URLs (comma-separated)" value={form.images} onChange={(e) => setForm({ ...form, images: e.target.value })} />
+              <Input placeholder="Tiện nghi (cách nhau bởi dấu phẩy)" value={form.amenities} onChange={(e) => setForm({ ...form, amenities: e.target.value })} />
+              <Input placeholder="URL hình ảnh (cách nhau bởi dấu phẩy)" value={form.images} onChange={(e) => setForm({ ...form, images: e.target.value })} />
               <Button className="w-full" onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending}>
-                {saveMutation.isPending ? "Saving..." : editing ? "Update" : "Create"}
+                {saveMutation.isPending ? "Đang lưu..." : editing ? "Cập nhật" : "Tạo mới"}
               </Button>
             </div>
           </DialogContent>
@@ -160,11 +166,11 @@ function HotelsTab() {
             <CardContent className="p-4 flex items-center justify-between">
               <div>
                 <h3 className="font-semibold">{h.name}</h3>
-                <p className="text-sm text-muted-foreground">{h.location} • ${h.price_per_night}/night • ⭐ {h.rating}</p>
+                <p className="text-sm text-muted-foreground">{h.location} • ${h.price_per_night}/đêm • ⭐ {h.rating}</p>
               </div>
               <div className="flex gap-2">
-                <Button variant="outline" size="icon" onClick={() => openEdit(h)}><Pencil className="h-4 w-4" /></Button>
-                <Button variant="outline" size="icon" className="text-destructive" onClick={() => deleteMutation.mutate(h.id)}><Trash2 className="h-4 w-4" /></Button>
+                <Button variant="outline" size="icon" onClick={() => openEdit(h)} aria-label="Sửa"><Pencil className="h-4 w-4" /></Button>
+                <Button variant="outline" size="icon" className="text-destructive" onClick={() => deleteMutation.mutate(h.id)} aria-label="Xoá"><Trash2 className="h-4 w-4" /></Button>
               </div>
             </CardContent>
           </Card>
@@ -208,7 +214,7 @@ function RoomsTab() {
       queryClient.invalidateQueries({ queryKey: ["admin-rooms"] });
       setOpen(false);
       setForm({ hotel_id: "", type: "single", price: "" });
-      toast.success("Room added");
+      toast.success("Đã thêm phòng");
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -220,23 +226,23 @@ function RoomsTab() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-rooms"] });
-      toast.success("Room deleted");
+      toast.success("Đã xoá phòng");
     },
   });
 
   return (
     <div>
       <div className="flex justify-between mb-4">
-        <h2 className="font-heading text-xl font-semibold">Rooms ({rooms?.length || 0})</h2>
+        <h2 className="font-heading text-xl font-semibold">Phòng ({rooms?.length || 0})</h2>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button><Plus className="h-4 w-4 mr-1" /> Add Room</Button>
+            <Button><Plus className="h-4 w-4 mr-1" /> Thêm phòng</Button>
           </DialogTrigger>
           <DialogContent>
-            <DialogHeader><DialogTitle>Add Room</DialogTitle></DialogHeader>
+            <DialogHeader><DialogTitle>Thêm phòng</DialogTitle></DialogHeader>
             <div className="space-y-3">
               <Select value={form.hotel_id} onValueChange={(v) => setForm({ ...form, hotel_id: v })}>
-                <SelectTrigger><SelectValue placeholder="Select hotel" /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder="Chọn khách sạn" /></SelectTrigger>
                 <SelectContent>
                   {hotels?.map((h) => <SelectItem key={h.id} value={h.id}>{h.name}</SelectItem>)}
                 </SelectContent>
@@ -244,13 +250,13 @@ function RoomsTab() {
               <Select value={form.type} onValueChange={(v) => setForm({ ...form, type: v })}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="single">Single</SelectItem>
-                  <SelectItem value="double">Double</SelectItem>
+                  <SelectItem value="single">Phòng đơn</SelectItem>
+                  <SelectItem value="double">Phòng đôi</SelectItem>
                   <SelectItem value="deluxe">Deluxe</SelectItem>
                 </SelectContent>
               </Select>
-              <Input placeholder="Price/night" type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} />
-              <Button className="w-full" onClick={() => addRoom.mutate()} disabled={addRoom.isPending}>Add Room</Button>
+              <Input placeholder="Giá/đêm" type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} />
+              <Button className="w-full" onClick={() => addRoom.mutate()} disabled={addRoom.isPending}>Thêm phòng</Button>
             </div>
           </DialogContent>
         </Dialog>
@@ -259,9 +265,9 @@ function RoomsTab() {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Hotel</TableHead>
-            <TableHead>Type</TableHead>
-            <TableHead>Price</TableHead>
+            <TableHead>Khách sạn</TableHead>
+            <TableHead>Loại</TableHead>
+            <TableHead>Giá</TableHead>
             <TableHead></TableHead>
           </TableRow>
         </TableHeader>
@@ -272,7 +278,7 @@ function RoomsTab() {
               <TableCell className="capitalize">{r.type}</TableCell>
               <TableCell>${r.price}</TableCell>
               <TableCell>
-                <Button variant="outline" size="icon" className="text-destructive" onClick={() => deleteRoom.mutate(r.id)}>
+                <Button variant="outline" size="icon" className="text-destructive" onClick={() => deleteRoom.mutate(r.id)} aria-label="Xoá">
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </TableCell>
@@ -298,27 +304,27 @@ function BookingsTab() {
 
   return (
     <div>
-      <h2 className="font-heading text-xl font-semibold mb-4">All Bookings ({bookings?.length || 0})</h2>
+      <h2 className="font-heading text-xl font-semibold mb-4">Tất cả đặt phòng ({bookings?.length || 0})</h2>
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Guest</TableHead>
-            <TableHead>Hotel</TableHead>
-            <TableHead>Room</TableHead>
-            <TableHead>Dates</TableHead>
-            <TableHead>Total</TableHead>
-            <TableHead>Status</TableHead>
+            <TableHead>Khách</TableHead>
+            <TableHead>Khách sạn</TableHead>
+            <TableHead>Phòng</TableHead>
+            <TableHead>Ngày</TableHead>
+            <TableHead>Tổng</TableHead>
+            <TableHead>Trạng thái</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {bookings?.map((b) => (
             <TableRow key={b.id}>
-              <TableCell>{(b.profiles as any)?.full_name || "Unknown"}</TableCell>
+              <TableCell>{(b.profiles as any)?.full_name || "Ẩn danh"}</TableCell>
               <TableCell>{(b.hotels as any)?.name}</TableCell>
               <TableCell className="capitalize">{(b.rooms as any)?.type}</TableCell>
-              <TableCell>{format(new Date(b.check_in), "MMM dd")} – {format(new Date(b.check_out), "MMM dd")}</TableCell>
+              <TableCell>{format(new Date(b.check_in), "dd/MM")} – {format(new Date(b.check_out), "dd/MM")}</TableCell>
               <TableCell>${b.total_price}</TableCell>
-              <TableCell><Badge variant={b.status === "confirmed" ? "default" : "secondary"}>{b.status}</Badge></TableCell>
+              <TableCell><Badge variant={b.status === "confirmed" ? "default" : "secondary"}>{STATUS_LABEL[b.status] || b.status}</Badge></TableCell>
             </TableRow>
           ))}
         </TableBody>
@@ -354,42 +360,42 @@ function UsersTab() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
-      toast.success("User role updated");
+      toast.success("Đã cập nhật quyền người dùng");
     },
     onError: (e: Error) => toast.error(e.message),
   });
 
   return (
     <div>
-      <h2 className="font-heading text-xl font-semibold mb-4">Users ({users?.length || 0})</h2>
+      <h2 className="font-heading text-xl font-semibold mb-4">Người dùng ({users?.length || 0})</h2>
       <p className="text-sm text-muted-foreground mb-4">
-        Promote trusted users to admin so they can manage hotels, rooms, and bookings.
+        Cấp quyền Admin cho người dùng đáng tin để họ có thể quản lý khách sạn, phòng và đặt phòng.
       </p>
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Joined</TableHead>
-            <TableHead>Role</TableHead>
+            <TableHead>Tên</TableHead>
+            <TableHead>Tham gia</TableHead>
+            <TableHead>Quyền</TableHead>
             <TableHead></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {users?.map((u) => (
             <TableRow key={u.id}>
-              <TableCell>{u.full_name || "Unnamed"}</TableCell>
-              <TableCell>{format(new Date(u.created_at), "MMM dd, yyyy")}</TableCell>
+              <TableCell>{u.full_name || "Chưa đặt tên"}</TableCell>
+              <TableCell>{format(new Date(u.created_at), "dd/MM/yyyy")}</TableCell>
               <TableCell>
-                <Badge variant={u.isAdmin ? "default" : "secondary"}>{u.isAdmin ? "admin" : "user"}</Badge>
+                <Badge variant={u.isAdmin ? "default" : "secondary"}>{u.isAdmin ? "Admin" : "Người dùng"}</Badge>
               </TableCell>
               <TableCell>
                 {u.isAdmin ? (
                   <Button variant="outline" size="sm" onClick={() => toggleAdmin.mutate({ userId: u.id, makeAdmin: false })}>
-                    <ShieldOff className="h-4 w-4 mr-1" /> Revoke admin
+                    <ShieldOff className="h-4 w-4 mr-1" /> Thu hồi Admin
                   </Button>
                 ) : (
                   <Button variant="outline" size="sm" onClick={() => toggleAdmin.mutate({ userId: u.id, makeAdmin: true })}>
-                    <Shield className="h-4 w-4 mr-1" /> Make admin
+                    <Shield className="h-4 w-4 mr-1" /> Cấp quyền Admin
                   </Button>
                 )}
               </TableCell>
@@ -402,4 +408,3 @@ function UsersTab() {
 }
 
 export default Admin;
-

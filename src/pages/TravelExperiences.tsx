@@ -20,7 +20,7 @@ const TravelExperiences = () => {
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 container mx-auto px-4 pb-8 text-primary-foreground">
             <Link to="/experiences" className="inline-flex items-center gap-1 text-sm opacity-90 hover:opacity-100 mb-3">
-              <ArrowLeft className="h-4 w-4" /> All experiences
+              <ArrowLeft className="h-4 w-4" /> Tất cả trải nghiệm
             </Link>
             <Badge className="mb-3">{experience.type}</Badge>
             <h1 className="font-heading text-3xl md:text-5xl font-bold mb-2">{experience.name}</h1>
@@ -36,7 +36,7 @@ const TravelExperiences = () => {
 
             <div>
               <h2 className="font-heading text-2xl font-semibold mb-4 flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-primary" /> Suggested activities
+                <Sparkles className="h-5 w-5 text-primary" /> Hoạt động gợi ý
               </h2>
               <ul className="grid sm:grid-cols-2 gap-3">
                 {experience.activities.map((a) => (
@@ -50,7 +50,7 @@ const TravelExperiences = () => {
 
           <aside className="space-y-4">
             <div className="bg-card border rounded-xl p-6">
-              <h3 className="font-heading font-semibold mb-3">Explore nearby</h3>
+              <h3 className="font-heading font-semibold mb-3">Khám phá gần đây</h3>
               <div className="flex flex-wrap gap-2 mb-4">
                 {experience.relatedDestinations.map((d) => (
                   <Link key={d} to={`/trending/${encodeURIComponent(d)}`}>
@@ -61,7 +61,7 @@ const TravelExperiences = () => {
                 ))}
               </div>
               <Link to="/hotels">
-                <Button className="w-full">Find nearby hotels</Button>
+                <Button className="w-full">Tìm khách sạn gần đây</Button>
               </Link>
             </div>
           </aside>
@@ -74,8 +74,8 @@ const TravelExperiences = () => {
     <div className="min-h-screen">
       <section className="bg-ocean-deep text-primary-foreground py-12 md:py-16">
         <div className="container mx-auto px-4">
-          <h1 className="font-heading text-3xl md:text-4xl font-bold mb-2">Travel Experiences</h1>
-          <p className="opacity-80">Handpicked activities and tours to make your trip unforgettable.</p>
+          <h1 className="font-heading text-3xl md:text-4xl font-bold mb-2">Trải nghiệm du lịch</h1>
+          <p className="opacity-80">Các hoạt động và tour được tuyển chọn cho hành trình khó quên.</p>
         </div>
       </section>
       <div className="container mx-auto px-4 py-12">

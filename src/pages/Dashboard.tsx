@@ -1,7 +1,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -9,6 +9,12 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { CalendarDays, MapPin, XCircle } from "lucide-react";
 import { Navigate, Link } from "react-router-dom";
+
+const STATUS_LABEL: Record<string, string> = {
+  confirmed: "Đã xác nhận",
+  cancelled: "Đã huỷ",
+  pending: "Đang chờ",
+};
 
 const Dashboard = () => {
   const { user, loading: authLoading } = useAuth();
@@ -39,7 +45,7 @@ const Dashboard = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["my-bookings"] });
-      toast.success("Booking cancelled");
+      toast.success("Đã huỷ đặt phòng");
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -49,7 +55,7 @@ const Dashboard = () => {
 
   return (
     <div className="container mx-auto px-4 py-10">
-      <h1 className="font-heading text-3xl font-bold mb-8">My Bookings</h1>
+      <h1 className="font-heading text-3xl font-bold mb-8">Đặt phòng của tôi</h1>
 
       {isLoading ? (
         <div className="space-y-4">
@@ -57,8 +63,8 @@ const Dashboard = () => {
         </div>
       ) : bookings?.length === 0 ? (
         <div className="text-center py-20">
-          <p className="text-xl text-muted-foreground mb-4">No bookings yet</p>
-          <Link to="/"><Button>Browse Hotels</Button></Link>
+          <p className="text-xl text-muted-foreground mb-4">Bạn chưa có đặt phòng nào</p>
+          <Link to="/"><Button>Tìm khách sạn</Button></Link>
         </div>
       ) : (
         <div className="space-y-4">
@@ -80,7 +86,7 @@ const Dashboard = () => {
                       <div className="flex items-center gap-2 mb-1">
                         <h3 className="font-heading font-semibold text-lg">{hotel?.name}</h3>
                         <Badge variant={b.status === "confirmed" ? "default" : "secondary"}>
-                          {b.status}
+                          {STATUS_LABEL[b.status] || b.status}
                         </Badge>
                       </div>
                       <div className="flex items-center gap-1 text-sm text-muted-foreground mb-2">
@@ -88,15 +94,15 @@ const Dashboard = () => {
                       </div>
                       <div className="flex items-center gap-4 text-sm">
                         <span className="flex items-center gap-1">
-                          <CalendarDays className="h-3.5 w-3.5" /> {format(new Date(b.check_in), "MMM dd")} – {format(new Date(b.check_out), "MMM dd, yyyy")}
+                          <CalendarDays className="h-3.5 w-3.5" /> {format(new Date(b.check_in), "dd/MM")} – {format(new Date(b.check_out), "dd/MM/yyyy")}
                         </span>
-                        <span className="capitalize">{room?.type} room</span>
+                        <span className="capitalize">Phòng {room?.type}</span>
                       </div>
                     </div>
                     <div className="flex items-center gap-4">
                       <div className="text-right">
                         <p className="text-2xl font-bold text-primary">${b.total_price}</p>
-                        <p className="text-xs text-muted-foreground">total</p>
+                        <p className="text-xs text-muted-foreground">tổng cộng</p>
                       </div>
                       {b.status === "confirmed" && (
                         <Button
@@ -105,7 +111,7 @@ const Dashboard = () => {
                           className="text-destructive hover:text-destructive"
                           onClick={() => cancelBooking.mutate(b.id)}
                         >
-                          <XCircle className="h-4 w-4 mr-1" /> Cancel
+                          <XCircle className="h-4 w-4 mr-1" /> Huỷ
                         </Button>
                       )}
                     </div>

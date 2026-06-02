@@ -19,7 +19,7 @@ const TravelGuidePage = () => {
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 container mx-auto px-4 pb-8 text-primary-foreground">
             <Link to="/travel-guide" className="inline-flex items-center gap-1 text-sm opacity-90 hover:opacity-100 mb-3">
-              <ArrowLeft className="h-4 w-4" /> All guides
+              <ArrowLeft className="h-4 w-4" /> Tất cả cẩm nang
             </Link>
             <Badge className="mb-3">{guide.category}</Badge>
             <h1 className="font-heading text-3xl md:text-5xl font-bold mb-2 max-w-3xl">{guide.title}</h1>
@@ -32,7 +32,7 @@ const TravelGuidePage = () => {
 
           <section>
             <h2 className="font-heading text-2xl font-semibold mb-4 flex items-center gap-2">
-              <CheckCircle2 className="h-5 w-5 text-primary" /> Travel tips
+              <CheckCircle2 className="h-5 w-5 text-primary" /> Mẹo du lịch
             </h2>
             <ul className="space-y-2">
               {guide.tips.map((t) => (
@@ -46,7 +46,7 @@ const TravelGuidePage = () => {
 
           <section>
             <h2 className="font-heading text-2xl font-semibold mb-4 flex items-center gap-2">
-              <MapPin className="h-5 w-5 text-primary" /> Recommended places
+              <MapPin className="h-5 w-5 text-primary" /> Địa điểm gợi ý
             </h2>
             <div className="flex flex-wrap gap-2">
               {guide.recommendedPlaces.map((p) => (
@@ -57,7 +57,7 @@ const TravelGuidePage = () => {
 
           <section>
             <h2 className="font-heading text-2xl font-semibold mb-4 flex items-center gap-2">
-              <Info className="h-5 w-5 text-primary" /> Useful notes
+              <Info className="h-5 w-5 text-primary" /> Ghi chú hữu ích
             </h2>
             <ul className="space-y-2 text-sm text-muted-foreground">
               {guide.notes.map((n) => <li key={n}>• {n}</li>)}
@@ -72,8 +72,8 @@ const TravelGuidePage = () => {
     <div className="min-h-screen">
       <section className="bg-ocean-deep text-primary-foreground py-12 md:py-16">
         <div className="container mx-auto px-4">
-          <h1 className="font-heading text-3xl md:text-4xl font-bold mb-2">Travel Guide</h1>
-          <p className="opacity-80">Insider stories and practical advice for your next adventure.</p>
+          <h1 className="font-heading text-3xl md:text-4xl font-bold mb-2">Cẩm nang du lịch</h1>
+          <p className="opacity-80">Câu chuyện từ người trong nghề và lời khuyên cho hành trình kế tiếp.</p>
         </div>
       </section>
       <div className="container mx-auto px-4 py-12">

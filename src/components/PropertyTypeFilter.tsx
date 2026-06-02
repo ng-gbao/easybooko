@@ -8,11 +8,11 @@ interface Props {
 }
 
 const types: { key?: PropertyType; label: string; icon: typeof Building2 }[] = [
-  { key: undefined, label: "All", icon: LayoutGrid },
-  { key: "hotel", label: "Hotels", icon: Building2 },
-  { key: "apartment", label: "Apartments", icon: Home },
-  { key: "resort", label: "Resorts", icon: Palmtree },
-  { key: "villa", label: "Villas", icon: Castle },
+  { key: undefined, label: "Tất cả", icon: LayoutGrid },
+  { key: "hotel", label: "Khách sạn", icon: Building2 },
+  { key: "apartment", label: "Căn hộ", icon: Home },
+  { key: "resort", label: "Resort", icon: Palmtree },
+  { key: "villa", label: "Villa", icon: Castle },
 ];
 
 const PropertyTypeFilter = ({ value, onChange }: Props) => (

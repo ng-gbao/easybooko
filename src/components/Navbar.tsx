@@ -9,14 +9,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { LogOut, User, Shield, Heart, Menu, X, Hotel, CalendarDays, Home } from "lucide-react";
+import { LogOut, Shield, Heart, Menu, X, Hotel, CalendarDays, Home } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/Logo";
 
 const navLinks = [
-  { to: "/", label: "Home", icon: Home },
-  { to: "/hotels", label: "Hotels", icon: Hotel },
+  { to: "/", label: "Trang chủ", icon: Home },
+  { to: "/hotels", label: "Khách sạn", icon: Hotel },
 ];
 
 const Navbar = () => {
@@ -37,21 +37,15 @@ const Navbar = () => {
   return (
     <nav className="sticky top-0 z-50 bg-card/95 backdrop-blur-lg border-b shadow-sm">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        {/* Logo */}
         <Logo />
 
-
-        {/* Desktop nav links */}
         <div className="hidden md:flex items-center gap-1 ml-8">
           {navLinks.map(({ to, label }) => (
             <Link key={label} to={to}>
               <Button
                 variant="ghost"
                 size="sm"
-                className={cn(
-                  "text-sm",
-                  location.pathname === to && "bg-accent/50"
-                )}
+                className={cn("text-sm", location.pathname === to && "bg-accent/50")}
               >
                 {label}
               </Button>
@@ -61,19 +55,18 @@ const Navbar = () => {
             <>
               <Link to="/wishlist">
                 <Button variant="ghost" size="sm" className={cn("text-sm", location.pathname === "/wishlist" && "bg-accent/50")}>
-                  <Heart className="h-4 w-4 mr-1" /> Wishlist
+                  <Heart className="h-4 w-4 mr-1" /> Yêu thích
                 </Button>
               </Link>
               <Link to="/dashboard">
                 <Button variant="ghost" size="sm" className={cn("text-sm", location.pathname === "/dashboard" && "bg-accent/50")}>
-                  <CalendarDays className="h-4 w-4 mr-1" /> My Bookings
+                  <CalendarDays className="h-4 w-4 mr-1" /> Đặt phòng của tôi
                 </Button>
               </Link>
             </>
           )}
         </div>
 
-        {/* Right section */}
         <div className="hidden md:flex items-center gap-3">
           {user ? (
             <DropdownMenu>
@@ -93,37 +86,35 @@ const Navbar = () => {
                 </div>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => navigate("/dashboard")}>
-                  <CalendarDays className="h-4 w-4 mr-2" /> My Bookings
+                  <CalendarDays className="h-4 w-4 mr-2" /> Đặt phòng của tôi
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate("/wishlist")}>
-                  <Heart className="h-4 w-4 mr-2" /> Wishlist
+                  <Heart className="h-4 w-4 mr-2" /> Yêu thích
                 </DropdownMenuItem>
                 {isAdmin && (
                   <DropdownMenuItem onClick={() => navigate("/admin")}>
-                    <Shield className="h-4 w-4 mr-2" /> Admin Panel
+                    <Shield className="h-4 w-4 mr-2" /> Trang Admin
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive">
-                  <LogOut className="h-4 w-4 mr-2" /> Sign Out
+                  <LogOut className="h-4 w-4 mr-2" /> Đăng xuất
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
             <>
-              <Link to="/login"><Button variant="ghost" size="sm">Sign In</Button></Link>
-              <Link to="/signup"><Button size="sm">Sign Up</Button></Link>
+              <Link to="/login"><Button variant="ghost" size="sm">Đăng nhập</Button></Link>
+              <Link to="/signup"><Button size="sm">Đăng ký</Button></Link>
             </>
           )}
         </div>
 
-        {/* Mobile hamburger */}
-        <button className="md:hidden p-2" onClick={() => setMobileOpen(!mobileOpen)}>
+        <button className="md:hidden p-2" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Mở menu">
           {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
       </div>
 
-      {/* Mobile menu */}
       {mobileOpen && (
         <div className="md:hidden bg-card border-b p-4 flex flex-col gap-1 animate-fade-in">
           {navLinks.map(({ to, label, icon: Icon }) => (
@@ -136,10 +127,10 @@ const Navbar = () => {
           {user ? (
             <>
               <Link to="/wishlist" onClick={() => setMobileOpen(false)}>
-                <Button variant="ghost" className="w-full justify-start"><Heart className="h-4 w-4 mr-2" /> Wishlist</Button>
+                <Button variant="ghost" className="w-full justify-start"><Heart className="h-4 w-4 mr-2" /> Yêu thích</Button>
               </Link>
               <Link to="/dashboard" onClick={() => setMobileOpen(false)}>
-                <Button variant="ghost" className="w-full justify-start"><CalendarDays className="h-4 w-4 mr-2" /> My Bookings</Button>
+                <Button variant="ghost" className="w-full justify-start"><CalendarDays className="h-4 w-4 mr-2" /> Đặt phòng của tôi</Button>
               </Link>
               {isAdmin && (
                 <Link to="/admin" onClick={() => setMobileOpen(false)}>
@@ -147,16 +138,16 @@ const Navbar = () => {
                 </Link>
               )}
               <Button variant="outline" className="w-full justify-start mt-2" onClick={() => { handleSignOut(); setMobileOpen(false); }}>
-                <LogOut className="h-4 w-4 mr-2" /> Sign Out
+                <LogOut className="h-4 w-4 mr-2" /> Đăng xuất
               </Button>
             </>
           ) : (
             <>
               <Link to="/login" onClick={() => setMobileOpen(false)}>
-                <Button variant="ghost" className="w-full justify-start">Sign In</Button>
+                <Button variant="ghost" className="w-full justify-start">Đăng nhập</Button>
               </Link>
               <Link to="/signup" onClick={() => setMobileOpen(false)}>
-                <Button className="w-full justify-start">Sign Up</Button>
+                <Button className="w-full justify-start">Đăng ký</Button>
               </Link>
             </>
           )}
