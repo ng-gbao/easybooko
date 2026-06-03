@@ -10,6 +10,7 @@ interface SuccessState {
   checkIn: string;
   checkOut: string;
   totalPrice: number;
+  pending?: boolean;
 }
 
 const BookingSuccess = () => {
@@ -18,19 +19,27 @@ const BookingSuccess = () => {
 
   if (!data) return <Navigate to="/" />;
 
+  const pending = !!data.pending;
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-muted/30">
       <Card className="w-full max-w-lg text-center">
         <CardContent className="pt-10 pb-8 px-8 space-y-6">
           <div className="flex justify-center">
-            <div className="h-20 w-20 rounded-full bg-green-100 flex items-center justify-center">
-              <CheckCircle2 className="h-10 w-10 text-green-600" />
+            <div className={`h-20 w-20 rounded-full flex items-center justify-center ${pending ? "bg-amber-100" : "bg-green-100"}`}>
+              <CheckCircle2 className={`h-10 w-10 ${pending ? "text-amber-600" : "text-green-600"}`} />
             </div>
           </div>
 
           <div>
-            <h1 className="font-heading text-2xl font-bold mb-2">Đặt phòng thành công! 🎉</h1>
-            <p className="text-muted-foreground">Đặt phòng của bạn đã được xử lý thành công.</p>
+            <h1 className="font-heading text-2xl font-bold mb-2">
+              {pending ? "Đặt phòng đã được gửi ⏳" : "Đặt phòng thành công! 🎉"}
+            </h1>
+            <p className="text-muted-foreground">
+              {pending
+                ? "Thanh toán của bạn đang chờ admin xác nhận. Bạn sẽ nhận được cập nhật trong phần Đặt phòng của tôi."
+                : "Đặt phòng của bạn đã được xử lý thành công."}
+            </p>
           </div>
 
           <div className="bg-muted rounded-lg p-5 text-left space-y-3">
@@ -55,13 +64,15 @@ const BookingSuccess = () => {
               <span className="font-medium">{format(new Date(data.checkOut), "dd/MM/yyyy")}</span>
             </div>
             <div className="flex justify-between text-sm border-t pt-3">
-              <span className="font-semibold">Đã thanh toán</span>
+              <span className="font-semibold">{pending ? "Tổng cộng (chờ xác nhận)" : "Đã thanh toán"}</span>
               <span className="font-bold text-primary text-lg">${data.totalPrice}</span>
             </div>
           </div>
 
           <p className="text-sm text-muted-foreground">
-            Email xác nhận sẽ được gửi đến địa chỉ Email đã đăng ký.
+            {pending
+              ? "Phòng sẽ được giữ chỗ cho đến khi admin xác nhận hoặc từ chối."
+              : "Email xác nhận sẽ được gửi đến địa chỉ Email đã đăng ký."}
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3">
