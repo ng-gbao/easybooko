@@ -14,6 +14,16 @@ const STATUS_LABEL: Record<string, string> = {
   confirmed: "Đã xác nhận",
   cancelled: "Đã huỷ",
   pending: "Đang chờ",
+  pending_confirmation: "Chờ admin xác nhận",
+  rejected: "Đã bị từ chối",
+};
+
+const STATUS_VARIANT: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
+  confirmed: "default",
+  pending_confirmation: "secondary",
+  pending: "secondary",
+  cancelled: "outline",
+  rejected: "destructive",
 };
 
 const Dashboard = () => {
