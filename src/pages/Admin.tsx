@@ -493,11 +493,6 @@ function PaymentsTab() {
     </div>
   );
 }
-        </TableBody>
-      </Table>
-    </div>
-  );
-}
 
 function UsersTab() {
   const queryClient = useQueryClient();
