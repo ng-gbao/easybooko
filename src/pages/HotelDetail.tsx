@@ -65,7 +65,7 @@ const HotelDetail = () => {
         .from("bookings")
         .select("room_id, check_in, check_out")
         .in("room_id", roomIds)
-        .eq("status", "confirmed")
+        .in("status", ["confirmed", "pending_confirmation"])
         .lt("check_in", coStr)
         .gt("check_out", ciStr);
       return data || [];
