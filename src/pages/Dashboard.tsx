@@ -46,11 +46,7 @@ const Dashboard = () => {
 
   const cancelBooking = useMutation({
     mutationFn: async (bookingId: string) => {
-      const { error } = await supabase
-        .from("bookings")
-        .update({ status: "cancelled" })
-        .eq("id", bookingId)
-        .eq("user_id", user!.id);
+      const { error } = await supabase.rpc("cancel_booking", { p_booking_id: bookingId });
       if (error) throw error;
     },
     onSuccess: () => {
