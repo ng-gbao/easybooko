@@ -13,13 +13,27 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Hotel, BedDouble, BookOpen, Users, Shield, ShieldOff } from "lucide-react";
+import { Plus, Pencil, Trash2, Hotel, BedDouble, BookOpen, Users, Shield, ShieldOff, CheckCircle2, XCircle, CreditCard } from "lucide-react";
 import { format } from "date-fns";
 
 const STATUS_LABEL: Record<string, string> = {
   confirmed: "Đã xác nhận",
   cancelled: "Đã huỷ",
   pending: "Đang chờ",
+  pending_confirmation: "Chờ xác nhận",
+  rejected: "Đã từ chối",
+  paid: "Đã thanh toán",
+  failed: "Thất bại",
+};
+
+const STATUS_VARIANT: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
+  confirmed: "default",
+  paid: "default",
+  pending_confirmation: "secondary",
+  pending: "secondary",
+  cancelled: "outline",
+  rejected: "destructive",
+  failed: "destructive",
 };
 
 const Admin = () => {
