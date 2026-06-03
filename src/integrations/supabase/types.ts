@@ -257,6 +257,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_confirm_payment: {
+        Args: { p_payment_id: string }
+        Returns: undefined
+      }
+      admin_reject_payment: {
+        Args: { p_payment_id: string }
+        Returns: undefined
+      }
+      cancel_booking: { Args: { p_booking_id: string }; Returns: undefined }
       confirm_payment: {
         Args: { p_booking_id: string; p_payment_id: string }
         Returns: undefined
