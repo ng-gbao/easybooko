@@ -91,7 +91,7 @@ const Dashboard = () => {
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <h3 className="font-heading font-semibold text-lg">{hotel?.name}</h3>
-                        <Badge variant={b.status === "confirmed" ? "default" : "secondary"}>
+                        <Badge variant={STATUS_VARIANT[b.status] || "secondary"}>
                           {STATUS_LABEL[b.status] || b.status}
                         </Badge>
                       </div>
@@ -110,16 +110,29 @@ const Dashboard = () => {
                         <p className="text-2xl font-bold text-primary">${b.total_price}</p>
                         <p className="text-xs text-muted-foreground">tổng cộng</p>
                       </div>
-                      {b.status === "confirmed" && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="text-destructive hover:text-destructive"
-                          onClick={() => cancelBooking.mutate(b.id)}
-                        >
-                          <XCircle className="h-4 w-4 mr-1" /> Huỷ
-                        </Button>
-                      )}
+                      {(() => {
+                        const cancellable = ["confirmed", "pending_confirmation"].includes(b.status);
+                        const expired = new Date(b.check_out) < new Date(new Date().setHours(0, 0, 0, 0));
+                        if (!cancellable) return null;
+                        if (expired) {
+                          return (
+                            <span className="text-xs text-muted-foreground max-w-[160px] text-right">
+                              Không thể hủy vì thời gian đặt phòng đã kết thúc
+                            </span>
+                          );
+                        }
+                        return (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-destructive hover:text-destructive"
+                            disabled={cancelBooking.isPending}
+                            onClick={() => cancelBooking.mutate(b.id)}
+                          >
+                            <XCircle className="h-4 w-4 mr-1" /> Huỷ
+                          </Button>
+                        );
+                      })()}
                     </div>
                   </CardContent>
                 </div>
