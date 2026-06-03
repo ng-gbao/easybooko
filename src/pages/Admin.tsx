@@ -307,20 +307,52 @@ function RoomsTab() {
 }
 
 function BookingsTab() {
-  const { data: bookings } = useQuery({
+  const queryClient = useQueryClient();
+  const { data: bookings, isLoading, error } = useQuery({
     queryKey: ["admin-bookings"],
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("bookings")
-        .select("*, hotels(name), rooms(type), profiles:user_id(full_name)")
+        .select("*, hotels(name), rooms(type), profiles:user_id(full_name), payments(id, status, payment_method)")
         .order("created_at", { ascending: false });
+      if (error) throw error;
       return data || [];
     },
   });
 
+  const confirmMut = useMutation({
+    mutationFn: async (paymentId: string) => {
+      const { error } = await supabase.rpc("admin_confirm_payment", { p_payment_id: paymentId });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-bookings"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-payments"] });
+      toast.success("Đã xác nhận thanh toán & đặt phòng");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const rejectMut = useMutation({
+    mutationFn: async (paymentId: string) => {
+      const { error } = await supabase.rpc("admin_reject_payment", { p_payment_id: paymentId });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-bookings"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-payments"] });
+      toast.success("Đã từ chối thanh toán");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  if (isLoading) return <p className="text-muted-foreground py-8">Đang tải...</p>;
+  if (error) return <p className="text-destructive py-8">Không tải được danh sách đặt phòng.</p>;
+  if (!bookings || bookings.length === 0) return <p className="text-muted-foreground py-8">Chưa có đặt phòng nào.</p>;
+
   return (
     <div>
-      <h2 className="font-heading text-xl font-semibold mb-4">Tất cả đặt phòng ({bookings?.length || 0})</h2>
+      <h2 className="font-heading text-xl font-semibold mb-4">Tất cả đặt phòng ({bookings.length})</h2>
       <Table>
         <TableHeader>
           <TableRow>
@@ -329,20 +361,138 @@ function BookingsTab() {
             <TableHead>Phòng</TableHead>
             <TableHead>Ngày</TableHead>
             <TableHead>Tổng</TableHead>
+            <TableHead>Thanh toán</TableHead>
             <TableHead>Trạng thái</TableHead>
+            <TableHead className="text-right">Hành động</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {bookings?.map((b) => (
-            <TableRow key={b.id}>
-              <TableCell>{(b.profiles as any)?.full_name || "Ẩn danh"}</TableCell>
-              <TableCell>{(b.hotels as any)?.name}</TableCell>
-              <TableCell className="capitalize">{(b.rooms as any)?.type}</TableCell>
-              <TableCell>{format(new Date(b.check_in), "dd/MM")} – {format(new Date(b.check_out), "dd/MM")}</TableCell>
-              <TableCell>${b.total_price}</TableCell>
-              <TableCell><Badge variant={b.status === "confirmed" ? "default" : "secondary"}>{STATUS_LABEL[b.status] || b.status}</Badge></TableCell>
+          {bookings.map((b: any) => {
+            const payment = Array.isArray(b.payments) ? b.payments[0] : b.payments;
+            const isPending = b.status === "pending_confirmation";
+            return (
+              <TableRow key={b.id}>
+                <TableCell>{b.profiles?.full_name || "Ẩn danh"}</TableCell>
+                <TableCell>{b.hotels?.name}</TableCell>
+                <TableCell className="capitalize">{b.rooms?.type}</TableCell>
+                <TableCell>{format(new Date(b.check_in), "dd/MM")} – {format(new Date(b.check_out), "dd/MM/yyyy")}</TableCell>
+                <TableCell>${b.total_price}</TableCell>
+                <TableCell className="uppercase text-xs">{payment?.payment_method || "—"}</TableCell>
+                <TableCell><Badge variant={STATUS_VARIANT[b.status] || "secondary"}>{STATUS_LABEL[b.status] || b.status}</Badge></TableCell>
+                <TableCell className="text-right">
+                  {isPending && payment?.id ? (
+                    <div className="flex justify-end gap-2">
+                      <Button size="sm" onClick={() => confirmMut.mutate(payment.id)} disabled={confirmMut.isPending}>
+                        <CheckCircle2 className="h-4 w-4 mr-1" /> Xác nhận
+                      </Button>
+                      <Button size="sm" variant="outline" className="text-destructive" onClick={() => rejectMut.mutate(payment.id)} disabled={rejectMut.isPending}>
+                        <XCircle className="h-4 w-4 mr-1" /> Từ chối
+                      </Button>
+                    </div>
+                  ) : (
+                    <span className="text-xs text-muted-foreground">—</span>
+                  )}
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
+
+function PaymentsTab() {
+  const queryClient = useQueryClient();
+  const { data: payments, isLoading, error } = useQuery({
+    queryKey: ["admin-payments"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("payments")
+        .select("*, profiles:user_id(full_name), bookings(id, status, check_in, check_out, hotels(name), rooms(type))")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+  const confirmMut = useMutation({
+    mutationFn: async (paymentId: string) => {
+      const { error } = await supabase.rpc("admin_confirm_payment", { p_payment_id: paymentId });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-payments"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-bookings"] });
+      toast.success("Đã xác nhận thanh toán");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  const rejectMut = useMutation({
+    mutationFn: async (paymentId: string) => {
+      const { error } = await supabase.rpc("admin_reject_payment", { p_payment_id: paymentId });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-payments"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-bookings"] });
+      toast.success("Đã từ chối thanh toán");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  if (isLoading) return <p className="text-muted-foreground py-8">Đang tải...</p>;
+  if (error) return <p className="text-destructive py-8">Không tải được thanh toán.</p>;
+  if (!payments || payments.length === 0) return <p className="text-muted-foreground py-8">Chưa có thanh toán nào.</p>;
+
+  return (
+    <div>
+      <h2 className="font-heading text-xl font-semibold mb-4">Tất cả thanh toán ({payments.length})</h2>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Khách</TableHead>
+            <TableHead>Khách sạn / Phòng</TableHead>
+            <TableHead>Mã giao dịch</TableHead>
+            <TableHead>Số tiền</TableHead>
+            <TableHead>Phương thức</TableHead>
+            <TableHead>Trạng thái</TableHead>
+            <TableHead className="text-right">Hành động</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {payments.map((p: any) => (
+            <TableRow key={p.id}>
+              <TableCell>{p.profiles?.full_name || "Ẩn danh"}</TableCell>
+              <TableCell>
+                <div className="text-sm">{p.bookings?.hotels?.name || "—"}</div>
+                <div className="text-xs text-muted-foreground capitalize">{p.bookings?.rooms?.type}</div>
+              </TableCell>
+              <TableCell className="text-xs font-mono">{p.transaction_reference}</TableCell>
+              <TableCell>${p.amount}</TableCell>
+              <TableCell className="uppercase text-xs">{p.payment_method}</TableCell>
+              <TableCell><Badge variant={STATUS_VARIANT[p.status] || "secondary"}>{STATUS_LABEL[p.status] || p.status}</Badge></TableCell>
+              <TableCell className="text-right">
+                {p.status === "pending" ? (
+                  <div className="flex justify-end gap-2">
+                    <Button size="sm" onClick={() => confirmMut.mutate(p.id)} disabled={confirmMut.isPending}>
+                      <CheckCircle2 className="h-4 w-4 mr-1" /> Xác nhận
+                    </Button>
+                    <Button size="sm" variant="outline" className="text-destructive" onClick={() => rejectMut.mutate(p.id)} disabled={rejectMut.isPending}>
+                      <XCircle className="h-4 w-4 mr-1" /> Từ chối
+                    </Button>
+                  </div>
+                ) : (
+                  <span className="text-xs text-muted-foreground">—</span>
+                )}
+              </TableCell>
             </TableRow>
           ))}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
         </TableBody>
       </Table>
     </div>
