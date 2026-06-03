@@ -65,28 +65,10 @@ const Payment = () => {
 
     setProcessing(true);
 
-    const txRef = `EBK-${Date.now()}-${Math.floor(Math.random() * 9999)}`;
-    const { data: payment, error: payErr } = await supabase
-      .from("payments")
-      .insert({
-        user_id: user.id,
-        amount: booking.totalPrice,
-        currency: "USD",
-        payment_method: methodValue,
-        status: "pending",
-        transaction_reference: txRef,
-      })
-      .select()
-      .single();
+    // Simulate payment gateway latency
+    await new Promise((r) => setTimeout(r, 1500));
 
-    if (payErr || !payment) {
-      setProcessing(false);
-      toast.error(payErr?.message || "Không thể khởi tạo thanh toán");
-      return;
-    }
-
-    await new Promise((r) => setTimeout(r, 2000));
-
+    // 1. Create booking as pending_confirmation (this also reserves the dates via trigger)
     const { data: bookingRow, error: bookErr } = await supabase
       .from("bookings")
       .insert({
@@ -96,29 +78,38 @@ const Payment = () => {
         check_in: booking.checkIn,
         check_out: booking.checkOut,
         total_price: booking.totalPrice,
-        status: "confirmed",
+        status: "pending_confirmation",
       })
       .select()
       .single();
 
-    if (bookErr) {
-      await supabase.rpc("mark_payment_failed", { p_payment_id: payment.id });
+    if (bookErr || !bookingRow) {
       setProcessing(false);
       toast.error(
-        bookErr.message.includes("already booked")
+        bookErr?.message?.includes("already booked")
           ? "Phòng này đã được đặt cho khoảng ngày bạn chọn!"
-          : bookErr.message
+          : bookErr?.message || "Không thể tạo đặt phòng"
       );
       return;
     }
 
-    const { error: confirmErr } = await supabase.rpc("confirm_payment", {
-      p_payment_id: payment.id,
-      p_booking_id: bookingRow.id,
-    });
-    if (confirmErr) {
+    // 2. Create pending payment linked to the booking
+    const txRef = `EBK-${Date.now()}-${Math.floor(Math.random() * 9999)}`;
+    const { error: payErr } = await supabase
+      .from("payments")
+      .insert({
+        user_id: user.id,
+        booking_id: bookingRow.id,
+        amount: booking.totalPrice,
+        currency: "USD",
+        payment_method: methodValue,
+        status: "pending",
+        transaction_reference: txRef,
+      });
+
+    if (payErr) {
       setProcessing(false);
-      toast.error(confirmErr.message || "Xác nhận thanh toán thất bại");
+      toast.error(payErr.message || "Không thể khởi tạo thanh toán");
       return;
     }
 
@@ -130,6 +121,7 @@ const Payment = () => {
         checkIn: booking.checkIn,
         checkOut: booking.checkOut,
         totalPrice: booking.totalPrice,
+        pending: true,
       },
     });
   };
