@@ -60,12 +60,11 @@ const HotelDetail = () => {
     queryKey: ["overlapping-bookings", id, ciStr, coStr, roomIds.length],
     queryFn: async () => {
       if (!ciStr || !coStr || roomIds.length === 0) return [];
-      // Overlap: existing.check_in < new.check_out AND existing.check_out > new.check_in
       const { data } = await supabase
         .from("bookings")
-        .select("room_id, check_in, check_out")
+        .select("room_id")
         .in("room_id", roomIds)
-        .in("status", ["confirmed", "pending_confirmation"])
+        .in("status", ["pending", "confirmed"])
         .lt("check_in", coStr)
         .gt("check_out", ciStr);
       return data || [];
@@ -73,40 +72,40 @@ const HotelDetail = () => {
     enabled: !!ciStr && !!coStr && roomIds.length > 0,
   });
 
-  // Booked room IDs for the selected window
-  const bookedRoomIds = useMemo(
-    () => new Set((overlappingBookings || []).map((b) => b.room_id)),
-    [overlappingBookings]
-  );
+  // Count overlapping bookings per room_id (each room row is a room type with `quantity` inventory)
+  const overlapCountByRoom = useMemo(() => {
+    const m = new Map<string, number>();
+    (overlappingBookings || []).forEach((b) => {
+      m.set(b.room_id, (m.get(b.room_id) || 0) + 1);
+    });
+    return m;
+  }, [overlappingBookings]);
 
-  // Group rooms by type → compute availability summary
   type RoomRow = NonNullable<typeof rooms>[number];
   const datesSelected = !!checkIn && !!checkOut;
 
-  const roomGroups = useMemo(() => {
-    const map = new Map<string, { type: string; rooms: RoomRow[]; available: RoomRow[]; bookedCount: number }>();
-    (rooms || []).forEach((r) => {
-      const g = map.get(r.type) || { type: r.type, rooms: [] as RoomRow[], available: [] as RoomRow[], bookedCount: 0 };
-      g.rooms.push(r);
-      if (datesSelected && bookedRoomIds.has(r.id)) g.bookedCount++;
-      else g.available.push(r);
-      map.set(r.type, g);
+  // Each room row represents a room type; available = quantity - overlapping bookings
+  const roomList = useMemo(() => {
+    const list = (rooms || []).map((r) => {
+      const quantity = (r as any).quantity ?? 1;
+      const used = overlapCountByRoom.get(r.id) || 0;
+      const available = Math.max(0, quantity - used);
+      return { room: r as RoomRow, quantity, available };
     });
-    const arr = Array.from(map.values());
-    // Sort: available types first, then limited, then sold out
-    const score = (g: typeof arr[number]) => {
-      if (!datesSelected) return 0;
-      if (g.available.length === 0) return 2;
-      if (g.available.length <= 2) return 1;
-      return 0;
-    };
-    return arr.sort((a, b) => score(a) - score(b));
-  }, [rooms, bookedRoomIds, datesSelected]);
+    if (!datesSelected) return list;
+    // Sort: available rooms first, sold-out last
+    return list.sort((a, b) => {
+      const sa = a.available === 0 ? 2 : a.available <= 1 ? 1 : 0;
+      const sb = b.available === 0 ? 2 : b.available <= 1 ? 1 : 0;
+      return sa - sb;
+    });
+  }, [rooms, overlapCountByRoom, datesSelected]);
 
   const selectedRoomData = rooms?.find((r) => r.id === selectedRoom);
   const nights = checkIn && checkOut ? differenceInDays(checkOut, checkIn) : 0;
   const totalPrice = selectedRoomData ? nights * selectedRoomData.price : 0;
-  const selectedRoomUnavailable = !!selectedRoom && datesSelected && bookedRoomIds.has(selectedRoom);
+  const selectedInfo = roomList.find((x) => x.room.id === selectedRoom);
+  const selectedRoomUnavailable = !!selectedRoom && datesSelected && selectedInfo?.available === 0;
 
   const handleBook = () => {
     if (!user) { navigate("/login"); return; }
