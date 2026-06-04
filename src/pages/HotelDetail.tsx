@@ -60,12 +60,11 @@ const HotelDetail = () => {
     queryKey: ["overlapping-bookings", id, ciStr, coStr, roomIds.length],
     queryFn: async () => {
       if (!ciStr || !coStr || roomIds.length === 0) return [];
-      // Overlap: existing.check_in < new.check_out AND existing.check_out > new.check_in
       const { data } = await supabase
         .from("bookings")
-        .select("room_id, check_in, check_out")
+        .select("room_id")
         .in("room_id", roomIds)
-        .in("status", ["confirmed", "pending_confirmation"])
+        .in("status", ["pending", "confirmed"])
         .lt("check_in", coStr)
         .gt("check_out", ciStr);
       return data || [];
@@ -73,40 +72,40 @@ const HotelDetail = () => {
     enabled: !!ciStr && !!coStr && roomIds.length > 0,
   });
 
-  // Booked room IDs for the selected window
-  const bookedRoomIds = useMemo(
-    () => new Set((overlappingBookings || []).map((b) => b.room_id)),
-    [overlappingBookings]
-  );
+  // Count overlapping bookings per room_id (each room row is a room type with `quantity` inventory)
+  const overlapCountByRoom = useMemo(() => {
+    const m = new Map<string, number>();
+    (overlappingBookings || []).forEach((b) => {
+      m.set(b.room_id, (m.get(b.room_id) || 0) + 1);
+    });
+    return m;
+  }, [overlappingBookings]);
 
-  // Group rooms by type → compute availability summary
   type RoomRow = NonNullable<typeof rooms>[number];
   const datesSelected = !!checkIn && !!checkOut;
 
-  const roomGroups = useMemo(() => {
-    const map = new Map<string, { type: string; rooms: RoomRow[]; available: RoomRow[]; bookedCount: number }>();
-    (rooms || []).forEach((r) => {
-      const g = map.get(r.type) || { type: r.type, rooms: [] as RoomRow[], available: [] as RoomRow[], bookedCount: 0 };
-      g.rooms.push(r);
-      if (datesSelected && bookedRoomIds.has(r.id)) g.bookedCount++;
-      else g.available.push(r);
-      map.set(r.type, g);
+  // Each room row represents a room type; available = quantity - overlapping bookings
+  const roomList = useMemo(() => {
+    const list = (rooms || []).map((r) => {
+      const quantity = (r as any).quantity ?? 1;
+      const used = overlapCountByRoom.get(r.id) || 0;
+      const available = Math.max(0, quantity - used);
+      return { room: r as RoomRow, quantity, available };
     });
-    const arr = Array.from(map.values());
-    // Sort: available types first, then limited, then sold out
-    const score = (g: typeof arr[number]) => {
-      if (!datesSelected) return 0;
-      if (g.available.length === 0) return 2;
-      if (g.available.length <= 2) return 1;
-      return 0;
-    };
-    return arr.sort((a, b) => score(a) - score(b));
-  }, [rooms, bookedRoomIds, datesSelected]);
+    if (!datesSelected) return list;
+    // Sort: available rooms first, sold-out last
+    return list.sort((a, b) => {
+      const sa = a.available === 0 ? 2 : a.available <= 1 ? 1 : 0;
+      const sb = b.available === 0 ? 2 : b.available <= 1 ? 1 : 0;
+      return sa - sb;
+    });
+  }, [rooms, overlapCountByRoom, datesSelected]);
 
   const selectedRoomData = rooms?.find((r) => r.id === selectedRoom);
   const nights = checkIn && checkOut ? differenceInDays(checkOut, checkIn) : 0;
   const totalPrice = selectedRoomData ? nights * selectedRoomData.price : 0;
-  const selectedRoomUnavailable = !!selectedRoom && datesSelected && bookedRoomIds.has(selectedRoom);
+  const selectedInfo = roomList.find((x) => x.room.id === selectedRoom);
+  const selectedRoomUnavailable = !!selectedRoom && datesSelected && selectedInfo?.available === 0;
 
   const handleBook = () => {
     if (!user) { navigate("/login"); return; }
@@ -221,58 +220,74 @@ const HotelDetail = () => {
             <div className="flex items-center justify-between mb-3">
               <h2 className="font-heading text-lg font-semibold">Phòng còn trống</h2>
               {!datesSelected && (
-                <span className="text-xs text-muted-foreground">Chọn ngày để xem tình trạng phòng theo thời gian thực</span>
+                <span className="text-xs text-muted-foreground">Chọn ngày để xem tình trạng phòng</span>
               )}
             </div>
             <div className="space-y-3">
-              {roomGroups.map((group) => {
-                const isSoldOut = datesSelected && group.available.length === 0;
-                const isLimited = datesSelected && group.available.length > 0 && group.available.length <= 2;
-                // Use the first available room (or first room if none) as the bookable representative
-                const repRoom = group.available[0] || group.rooms[0];
-                const isSelected = selectedRoom === repRoom.id;
+              {roomList.map(({ room, quantity, available }) => {
+                const isSoldOut = datesSelected && available === 0;
+                const isOne = datesSelected && available === 1;
+                const isSelected = selectedRoom === room.id;
+
+                let availLabel: React.ReactNode = null;
+                if (datesSelected) {
+                  if (isSoldOut) {
+                    availLabel = (
+                      <Badge variant="outline" className="border-destructive/40 text-destructive">
+                        Đã hết phòng cho ngày đã chọn
+                      </Badge>
+                    );
+                  } else if (isOne) {
+                    availLabel = (
+                      <Badge variant="outline" className="border-amber-500/50 text-amber-700 dark:text-amber-400">
+                        Sắp hết — chỉ còn 1 phòng
+                      </Badge>
+                    );
+                  } else {
+                    availLabel = (
+                      <Badge variant="outline" className="border-emerald-500/40 text-emerald-700 dark:text-emerald-400">
+                        Còn {available} phòng
+                      </Badge>
+                    );
+                  }
+                }
 
                 return (
                   <Card
-                    key={group.type}
+                    key={room.id}
                     className={cn(
                       "transition-all",
                       isSoldOut ? "opacity-60" : "cursor-pointer",
                       isSelected ? "ring-2 ring-primary" : !isSoldOut && "hover:shadow-md"
                     )}
-                    onClick={() => { if (!isSoldOut) setSelectedRoom(repRoom.id); }}
+                    onClick={() => { if (!isSoldOut) setSelectedRoom(room.id); }}
                   >
                     <CardContent className="p-4 flex items-center justify-between gap-3">
                       <div className="flex items-center gap-3 min-w-0">
                         <Users className="h-5 w-5 text-muted-foreground shrink-0" />
                         <div className="min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <p className="font-semibold capitalize">Phòng {group.type}</p>
-                            {datesSelected && (
-                              isSoldOut ? (
-                                <Badge variant="outline" className="border-destructive/40 text-destructive">Hết phòng</Badge>
-                              ) : isLimited ? (
-                                <Badge variant="outline" className="border-amber-500/50 text-amber-700 dark:text-amber-400">
-                                  Sắp hết ({group.available.length} phòng)
-                                </Badge>
-                              ) : (
-                                <Badge variant="outline" className="border-emerald-500/40 text-emerald-700 dark:text-emerald-400">
-                                  Còn phòng
-                                </Badge>
-                              )
-                            )}
+                            <p className="font-semibold capitalize">Phòng {room.type}</p>
+                            {availLabel}
                           </div>
-                          <p className="text-sm text-muted-foreground">${repRoom.price}/đêm</p>
-                          {isSoldOut && (
-                            <p className="text-xs text-destructive mt-1">Không khả dụng cho ngày đã chọn</p>
-                          )}
+                          <p className="text-sm text-muted-foreground">
+                            ${room.price}/đêm
+                            {!datesSelected && ` · ${quantity} phòng tổng`}
+                          </p>
                         </div>
                       </div>
                       <Button
                         variant={isSelected ? "default" : "outline"}
                         size="sm"
                         disabled={isSoldOut}
-                        onClick={(e) => { e.stopPropagation(); if (!isSoldOut) setSelectedRoom(repRoom.id); }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (!datesSelected) {
+                            toast.error("Vui lòng chọn ngày check-in và check-out trước");
+                            return;
+                          }
+                          if (!isSoldOut) setSelectedRoom(room.id);
+                        }}
                       >
                         {isSoldOut ? "Hết phòng" : isSelected ? "Đã chọn" : "Chọn"}
                       </Button>
@@ -280,12 +295,13 @@ const HotelDetail = () => {
                   </Card>
                 );
               })}
-              {roomGroups.length === 0 && (
+              {roomList.length === 0 && (
                 <p className="text-muted-foreground text-center py-8">Không có phòng nào.</p>
               )}
             </div>
           </div>
         </div>
+
 
 
         {/* Booking sidebar */}

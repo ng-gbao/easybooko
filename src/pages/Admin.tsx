@@ -17,21 +17,21 @@ import { Plus, Pencil, Trash2, Hotel, BedDouble, BookOpen, Users, Shield, Shield
 import { format } from "date-fns";
 
 const STATUS_LABEL: Record<string, string> = {
+  pending: "Đang chờ xác nhận",
   confirmed: "Đã xác nhận",
-  cancelled: "Đã huỷ",
-  pending: "Đang chờ",
-  pending_confirmation: "Chờ xác nhận",
-  rejected: "Đã từ chối",
+  cancelled: "Đã hủy",
+  rejected: "Bị từ chối",
   paid: "Đã thanh toán",
   failed: "Thất bại",
+  refunded: "Đã hoàn tiền",
 };
 
 const STATUS_VARIANT: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
   confirmed: "default",
   paid: "default",
-  pending_confirmation: "secondary",
   pending: "secondary",
   cancelled: "outline",
+  refunded: "outline",
   rejected: "destructive",
   failed: "destructive",
 };
@@ -308,15 +308,42 @@ function RoomsTab() {
 
 function BookingsTab() {
   const queryClient = useQueryClient();
-  const { data: bookings, isLoading, error } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ["admin-bookings"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data: bookings, error: bErr } = await supabase
         .from("bookings")
-        .select("*, hotels(name), rooms(type), profiles:user_id(full_name), payments(id, status, payment_method)")
+        .select("*, hotels(name), rooms(type)")
         .order("created_at", { ascending: false });
-      if (error) throw error;
-      return data || [];
+      if (bErr) throw bErr;
+      const list = bookings || [];
+
+      const userIds = Array.from(new Set(list.map((b) => b.user_id)));
+      const bookingIds = list.map((b) => b.id);
+
+      const [{ data: profiles }, { data: payments }] = await Promise.all([
+        userIds.length
+          ? supabase.from("profiles").select("id, full_name").in("id", userIds)
+          : Promise.resolve({ data: [] as any[] }),
+        bookingIds.length
+          ? supabase
+              .from("payments")
+              .select("id, booking_id, status, payment_method, amount")
+              .in("booking_id", bookingIds)
+          : Promise.resolve({ data: [] as any[] }),
+      ]);
+
+      const profileMap = new Map((profiles || []).map((p: any) => [p.id, p]));
+      const paymentMap = new Map<string, any>();
+      (payments || []).forEach((p: any) => {
+        if (p.booking_id && !paymentMap.has(p.booking_id)) paymentMap.set(p.booking_id, p);
+      });
+
+      return list.map((b: any) => ({
+        ...b,
+        _profile: profileMap.get(b.user_id),
+        _payment: paymentMap.get(b.id),
+      }));
     },
   });
 
@@ -330,7 +357,7 @@ function BookingsTab() {
       queryClient.invalidateQueries({ queryKey: ["admin-payments"] });
       toast.success("Đã xác nhận thanh toán & đặt phòng");
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => { console.error(e); toast.error("Không thể xác nhận. Vui lòng thử lại."); },
   });
 
   const rejectMut = useMutation({
@@ -343,16 +370,16 @@ function BookingsTab() {
       queryClient.invalidateQueries({ queryKey: ["admin-payments"] });
       toast.success("Đã từ chối thanh toán");
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => { console.error(e); toast.error("Không thể từ chối. Vui lòng thử lại."); },
   });
 
   if (isLoading) return <p className="text-muted-foreground py-8">Đang tải...</p>;
-  if (error) return <p className="text-destructive py-8">Không tải được danh sách đặt phòng.</p>;
-  if (!bookings || bookings.length === 0) return <p className="text-muted-foreground py-8">Chưa có đặt phòng nào.</p>;
+  if (error) { console.error(error); return <p className="text-destructive py-8">Không tải được danh sách đặt phòng.</p>; }
+  if (!data || data.length === 0) return <p className="text-muted-foreground py-8">Chưa có đặt phòng nào.</p>;
 
   return (
     <div>
-      <h2 className="font-heading text-xl font-semibold mb-4">Tất cả đặt phòng ({bookings.length})</h2>
+      <h2 className="font-heading text-xl font-semibold mb-4">Tất cả đặt phòng ({data.length})</h2>
       <Table>
         <TableHeader>
           <TableRow>
@@ -367,12 +394,12 @@ function BookingsTab() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {bookings.map((b: any) => {
-            const payment = Array.isArray(b.payments) ? b.payments[0] : b.payments;
-            const isPending = b.status === "pending_confirmation";
+          {data.map((b: any) => {
+            const payment = b._payment;
+            const isPending = b.status === "pending";
             return (
               <TableRow key={b.id}>
-                <TableCell>{b.profiles?.full_name || "Ẩn danh"}</TableCell>
+                <TableCell>{b._profile?.full_name || "Ẩn danh"}</TableCell>
                 <TableCell>{b.hotels?.name}</TableCell>
                 <TableCell className="capitalize">{b.rooms?.type}</TableCell>
                 <TableCell>{format(new Date(b.check_in), "dd/MM")} – {format(new Date(b.check_out), "dd/MM/yyyy")}</TableCell>
@@ -404,15 +431,39 @@ function BookingsTab() {
 
 function PaymentsTab() {
   const queryClient = useQueryClient();
-  const { data: payments, isLoading, error } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ["admin-payments"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data: payments, error: pErr } = await supabase
         .from("payments")
-        .select("*, profiles:user_id(full_name), bookings(id, status, check_in, check_out, hotels(name), rooms(type))")
+        .select("*")
         .order("created_at", { ascending: false });
-      if (error) throw error;
-      return data || [];
+      if (pErr) throw pErr;
+      const list = payments || [];
+
+      const userIds = Array.from(new Set(list.map((p) => p.user_id).filter(Boolean)));
+      const bookingIds = Array.from(new Set(list.map((p) => p.booking_id).filter(Boolean) as string[]));
+
+      const [{ data: profiles }, { data: bookings }] = await Promise.all([
+        userIds.length
+          ? supabase.from("profiles").select("id, full_name").in("id", userIds)
+          : Promise.resolve({ data: [] as any[] }),
+        bookingIds.length
+          ? supabase
+              .from("bookings")
+              .select("id, status, check_in, check_out, hotels(name), rooms(type)")
+              .in("id", bookingIds)
+          : Promise.resolve({ data: [] as any[] }),
+      ]);
+
+      const profileMap = new Map((profiles || []).map((p: any) => [p.id, p]));
+      const bookingMap = new Map((bookings || []).map((b: any) => [b.id, b]));
+
+      return list.map((p: any) => ({
+        ...p,
+        _profile: profileMap.get(p.user_id),
+        _booking: p.booking_id ? bookingMap.get(p.booking_id) : null,
+      }));
     },
   });
 
@@ -426,7 +477,7 @@ function PaymentsTab() {
       queryClient.invalidateQueries({ queryKey: ["admin-bookings"] });
       toast.success("Đã xác nhận thanh toán");
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => { console.error(e); toast.error("Không thể xác nhận. Vui lòng thử lại."); },
   });
   const rejectMut = useMutation({
     mutationFn: async (paymentId: string) => {
@@ -438,16 +489,16 @@ function PaymentsTab() {
       queryClient.invalidateQueries({ queryKey: ["admin-bookings"] });
       toast.success("Đã từ chối thanh toán");
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => { console.error(e); toast.error("Không thể từ chối. Vui lòng thử lại."); },
   });
 
   if (isLoading) return <p className="text-muted-foreground py-8">Đang tải...</p>;
-  if (error) return <p className="text-destructive py-8">Không tải được thanh toán.</p>;
-  if (!payments || payments.length === 0) return <p className="text-muted-foreground py-8">Chưa có thanh toán nào.</p>;
+  if (error) { console.error(error); return <p className="text-destructive py-8">Không tải được thanh toán.</p>; }
+  if (!data || data.length === 0) return <p className="text-muted-foreground py-8">Chưa có thanh toán nào.</p>;
 
   return (
     <div>
-      <h2 className="font-heading text-xl font-semibold mb-4">Tất cả thanh toán ({payments.length})</h2>
+      <h2 className="font-heading text-xl font-semibold mb-4">Tất cả thanh toán ({data.length})</h2>
       <Table>
         <TableHeader>
           <TableRow>
@@ -461,12 +512,12 @@ function PaymentsTab() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {payments.map((p: any) => (
+          {data.map((p: any) => (
             <TableRow key={p.id}>
-              <TableCell>{p.profiles?.full_name || "Ẩn danh"}</TableCell>
+              <TableCell>{p._profile?.full_name || "Ẩn danh"}</TableCell>
               <TableCell>
-                <div className="text-sm">{p.bookings?.hotels?.name || "—"}</div>
-                <div className="text-xs text-muted-foreground capitalize">{p.bookings?.rooms?.type}</div>
+                <div className="text-sm">{p._booking?.hotels?.name || "—"}</div>
+                <div className="text-xs text-muted-foreground capitalize">{p._booking?.rooms?.type}</div>
               </TableCell>
               <TableCell className="text-xs font-mono">{p.transaction_reference}</TableCell>
               <TableCell>${p.amount}</TableCell>

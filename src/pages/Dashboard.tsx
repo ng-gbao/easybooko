@@ -11,16 +11,14 @@ import { CalendarDays, MapPin, XCircle } from "lucide-react";
 import { Navigate, Link } from "react-router-dom";
 
 const STATUS_LABEL: Record<string, string> = {
+  pending: "Đang chờ xác nhận",
   confirmed: "Đã xác nhận",
-  cancelled: "Đã huỷ",
-  pending: "Đang chờ",
-  pending_confirmation: "Chờ admin xác nhận",
-  rejected: "Đã bị từ chối",
+  cancelled: "Đã hủy",
+  rejected: "Bị từ chối",
 };
 
 const STATUS_VARIANT: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
   confirmed: "default",
-  pending_confirmation: "secondary",
   pending: "secondary",
   cancelled: "outline",
   rejected: "destructive",
@@ -53,7 +51,14 @@ const Dashboard = () => {
       queryClient.invalidateQueries({ queryKey: ["my-bookings"] });
       toast.success("Đã huỷ đặt phòng");
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => {
+      console.error("Cancel booking error:", e);
+      if (e.message?.toLowerCase().includes("check-out")) {
+        toast.error("Không thể hủy vì thời gian đặt phòng đã kết thúc");
+      } else {
+        toast.error("Không thể hủy đặt phòng. Vui lòng thử lại.");
+      }
+    },
   });
 
   if (authLoading) return null;
@@ -111,7 +116,7 @@ const Dashboard = () => {
                         <p className="text-xs text-muted-foreground">tổng cộng</p>
                       </div>
                       {(() => {
-                        const cancellable = ["confirmed", "pending_confirmation"].includes(b.status);
+                        const cancellable = ["confirmed", "pending"].includes(b.status);
                         const expired = new Date(b.check_out) < new Date(new Date().setHours(0, 0, 0, 0));
                         if (!cancellable) return null;
                         if (expired) {

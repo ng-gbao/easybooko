@@ -177,6 +177,7 @@ export type Database = {
           hotel_id: string
           id: string
           price: number
+          quantity: number
           type: string
         }
         Insert: {
@@ -185,6 +186,7 @@ export type Database = {
           hotel_id: string
           id?: string
           price: number
+          quantity?: number
           type: string
         }
         Update: {
@@ -193,6 +195,7 @@ export type Database = {
           hotel_id?: string
           id?: string
           price?: number
+          quantity?: number
           type?: string
         }
         Relationships: [
