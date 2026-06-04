@@ -17,21 +17,21 @@ import { Plus, Pencil, Trash2, Hotel, BedDouble, BookOpen, Users, Shield, Shield
 import { format } from "date-fns";
 
 const STATUS_LABEL: Record<string, string> = {
+  pending: "Đang chờ xác nhận",
   confirmed: "Đã xác nhận",
-  cancelled: "Đã huỷ",
-  pending: "Đang chờ",
-  pending_confirmation: "Chờ xác nhận",
-  rejected: "Đã từ chối",
+  cancelled: "Đã hủy",
+  rejected: "Bị từ chối",
   paid: "Đã thanh toán",
   failed: "Thất bại",
+  refunded: "Đã hoàn tiền",
 };
 
 const STATUS_VARIANT: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
   confirmed: "default",
   paid: "default",
-  pending_confirmation: "secondary",
   pending: "secondary",
   cancelled: "outline",
+  refunded: "outline",
   rejected: "destructive",
   failed: "destructive",
 };
