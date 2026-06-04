@@ -109,7 +109,7 @@ const Dashboard = () => {
                         <p className="text-xs text-muted-foreground">tổng cộng</p>
                       </div>
                       {(() => {
-                        const cancellable = ["confirmed", "pending_confirmation"].includes(b.status);
+                        const cancellable = ["confirmed", "pending"].includes(b.status);
                         const expired = new Date(b.check_out) < new Date(new Date().setHours(0, 0, 0, 0));
                         if (!cancellable) return null;
                         if (expired) {
