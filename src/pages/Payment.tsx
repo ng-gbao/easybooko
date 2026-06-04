@@ -65,65 +65,89 @@ const Payment = () => {
 
     setProcessing(true);
 
-    // Simulate payment gateway latency
-    await new Promise((r) => setTimeout(r, 1500));
+    try {
+      await new Promise((r) => setTimeout(r, 1200));
 
-    // 1. Create booking as pending_confirmation (this also reserves the dates via trigger)
-    const { data: bookingRow, error: bookErr } = await supabase
-      .from("bookings")
-      .insert({
-        user_id: user.id,
-        hotel_id: booking.hotelId,
-        room_id: booking.roomId,
-        check_in: booking.checkIn,
-        check_out: booking.checkOut,
-        total_price: booking.totalPrice,
-        status: "pending_confirmation",
-      })
-      .select()
-      .single();
+      // Re-check availability right before creating the booking
+      const { data: roomRow, error: roomErr } = await supabase
+        .from("rooms")
+        .select("quantity")
+        .eq("id", booking.roomId)
+        .single();
+      if (roomErr || !roomRow) throw new Error("ROOM_NOT_FOUND");
+      const quantity = (roomRow as any).quantity ?? 1;
 
-    if (bookErr || !bookingRow) {
+      const { data: overlaps, error: overlapErr } = await supabase
+        .from("bookings")
+        .select("id")
+        .eq("room_id", booking.roomId)
+        .in("status", ["pending", "confirmed"])
+        .lt("check_in", booking.checkOut)
+        .gt("check_out", booking.checkIn);
+      if (overlapErr) throw overlapErr;
+      if ((overlaps?.length || 0) >= quantity) throw new Error("ROOM_FULL");
+
+      // 1. Create booking as pending
+      const { data: bookingRow, error: bookErr } = await supabase
+        .from("bookings")
+        .insert({
+          user_id: user.id,
+          hotel_id: booking.hotelId,
+          room_id: booking.roomId,
+          check_in: booking.checkIn,
+          check_out: booking.checkOut,
+          total_price: booking.totalPrice,
+          status: "pending",
+        })
+        .select()
+        .single();
+
+      if (bookErr || !bookingRow) {
+        console.error("Booking insert error:", bookErr);
+        const msg = bookErr?.message?.toLowerCase() || "";
+        throw new Error(msg.includes("booked") || msg.includes("fully") ? "ROOM_FULL" : "BOOKING_FAILED");
+      }
+
+      // 2. Create pending payment linked to the booking
+      const txRef = `EBK-${Date.now()}-${Math.floor(Math.random() * 9999)}`;
+      const { error: payErr } = await supabase
+        .from("payments")
+        .insert({
+          user_id: user.id,
+          booking_id: bookingRow.id,
+          amount: booking.totalPrice,
+          currency: "USD",
+          payment_method: methodValue,
+          status: "pending",
+          transaction_reference: txRef,
+        });
+
+      if (payErr) {
+        console.error("Payment insert error:", payErr);
+        await supabase.from("bookings").delete().eq("id", bookingRow.id);
+        throw new Error("PAYMENT_FAILED");
+      }
+
       setProcessing(false);
-      toast.error(
-        bookErr?.message?.includes("already booked")
-          ? "Phòng này đã được đặt cho khoảng ngày bạn chọn!"
-          : bookErr?.message || "Không thể tạo đặt phòng"
-      );
-      return;
-    }
-
-    // 2. Create pending payment linked to the booking
-    const txRef = `EBK-${Date.now()}-${Math.floor(Math.random() * 9999)}`;
-    const { error: payErr } = await supabase
-      .from("payments")
-      .insert({
-        user_id: user.id,
-        booking_id: bookingRow.id,
-        amount: booking.totalPrice,
-        currency: "USD",
-        payment_method: methodValue,
-        status: "pending",
-        transaction_reference: txRef,
+      navigate("/booking-success", {
+        state: {
+          hotelName: booking.hotelName,
+          roomType: booking.roomType,
+          checkIn: booking.checkIn,
+          checkOut: booking.checkOut,
+          totalPrice: booking.totalPrice,
+          pending: true,
+        },
       });
-
-    if (payErr) {
+    } catch (err: any) {
       setProcessing(false);
-      toast.error(payErr.message || "Không thể khởi tạo thanh toán");
-      return;
+      console.error("Payment flow error:", err);
+      if (err?.message === "ROOM_FULL") {
+        toast.error("Phòng này vừa được đặt hết. Vui lòng chọn phòng khác hoặc đổi ngày.");
+      } else {
+        toast.error("Không thể tạo đặt phòng. Vui lòng thử lại hoặc chọn phòng khác.");
+      }
     }
-
-    setProcessing(false);
-    navigate("/booking-success", {
-      state: {
-        hotelName: booking.hotelName,
-        roomType: booking.roomType,
-        checkIn: booking.checkIn,
-        checkOut: booking.checkOut,
-        totalPrice: booking.totalPrice,
-        pending: true,
-      },
-    });
   };
 
   return (
