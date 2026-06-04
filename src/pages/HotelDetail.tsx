@@ -220,58 +220,74 @@ const HotelDetail = () => {
             <div className="flex items-center justify-between mb-3">
               <h2 className="font-heading text-lg font-semibold">Phòng còn trống</h2>
               {!datesSelected && (
-                <span className="text-xs text-muted-foreground">Chọn ngày để xem tình trạng phòng theo thời gian thực</span>
+                <span className="text-xs text-muted-foreground">Chọn ngày để xem tình trạng phòng</span>
               )}
             </div>
             <div className="space-y-3">
-              {roomGroups.map((group) => {
-                const isSoldOut = datesSelected && group.available.length === 0;
-                const isLimited = datesSelected && group.available.length > 0 && group.available.length <= 2;
-                // Use the first available room (or first room if none) as the bookable representative
-                const repRoom = group.available[0] || group.rooms[0];
-                const isSelected = selectedRoom === repRoom.id;
+              {roomList.map(({ room, quantity, available }) => {
+                const isSoldOut = datesSelected && available === 0;
+                const isOne = datesSelected && available === 1;
+                const isSelected = selectedRoom === room.id;
+
+                let availLabel: React.ReactNode = null;
+                if (datesSelected) {
+                  if (isSoldOut) {
+                    availLabel = (
+                      <Badge variant="outline" className="border-destructive/40 text-destructive">
+                        Đã hết phòng cho ngày đã chọn
+                      </Badge>
+                    );
+                  } else if (isOne) {
+                    availLabel = (
+                      <Badge variant="outline" className="border-amber-500/50 text-amber-700 dark:text-amber-400">
+                        Sắp hết — chỉ còn 1 phòng
+                      </Badge>
+                    );
+                  } else {
+                    availLabel = (
+                      <Badge variant="outline" className="border-emerald-500/40 text-emerald-700 dark:text-emerald-400">
+                        Còn {available} phòng
+                      </Badge>
+                    );
+                  }
+                }
 
                 return (
                   <Card
-                    key={group.type}
+                    key={room.id}
                     className={cn(
                       "transition-all",
                       isSoldOut ? "opacity-60" : "cursor-pointer",
                       isSelected ? "ring-2 ring-primary" : !isSoldOut && "hover:shadow-md"
                     )}
-                    onClick={() => { if (!isSoldOut) setSelectedRoom(repRoom.id); }}
+                    onClick={() => { if (!isSoldOut) setSelectedRoom(room.id); }}
                   >
                     <CardContent className="p-4 flex items-center justify-between gap-3">
                       <div className="flex items-center gap-3 min-w-0">
                         <Users className="h-5 w-5 text-muted-foreground shrink-0" />
                         <div className="min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <p className="font-semibold capitalize">Phòng {group.type}</p>
-                            {datesSelected && (
-                              isSoldOut ? (
-                                <Badge variant="outline" className="border-destructive/40 text-destructive">Hết phòng</Badge>
-                              ) : isLimited ? (
-                                <Badge variant="outline" className="border-amber-500/50 text-amber-700 dark:text-amber-400">
-                                  Sắp hết ({group.available.length} phòng)
-                                </Badge>
-                              ) : (
-                                <Badge variant="outline" className="border-emerald-500/40 text-emerald-700 dark:text-emerald-400">
-                                  Còn phòng
-                                </Badge>
-                              )
-                            )}
+                            <p className="font-semibold capitalize">Phòng {room.type}</p>
+                            {availLabel}
                           </div>
-                          <p className="text-sm text-muted-foreground">${repRoom.price}/đêm</p>
-                          {isSoldOut && (
-                            <p className="text-xs text-destructive mt-1">Không khả dụng cho ngày đã chọn</p>
-                          )}
+                          <p className="text-sm text-muted-foreground">
+                            ${room.price}/đêm
+                            {!datesSelected && ` · ${quantity} phòng tổng`}
+                          </p>
                         </div>
                       </div>
                       <Button
                         variant={isSelected ? "default" : "outline"}
                         size="sm"
                         disabled={isSoldOut}
-                        onClick={(e) => { e.stopPropagation(); if (!isSoldOut) setSelectedRoom(repRoom.id); }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (!datesSelected) {
+                            toast.error("Vui lòng chọn ngày check-in và check-out trước");
+                            return;
+                          }
+                          if (!isSoldOut) setSelectedRoom(room.id);
+                        }}
                       >
                         {isSoldOut ? "Hết phòng" : isSelected ? "Đã chọn" : "Chọn"}
                       </Button>
@@ -279,12 +295,13 @@ const HotelDetail = () => {
                   </Card>
                 );
               })}
-              {roomGroups.length === 0 && (
+              {roomList.length === 0 && (
                 <p className="text-muted-foreground text-center py-8">Không có phòng nào.</p>
               )}
             </div>
           </div>
         </div>
+
 
 
         {/* Booking sidebar */}
