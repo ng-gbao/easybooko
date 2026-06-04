@@ -51,7 +51,14 @@ const Dashboard = () => {
       queryClient.invalidateQueries({ queryKey: ["my-bookings"] });
       toast.success("Đã huỷ đặt phòng");
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => {
+      console.error("Cancel booking error:", e);
+      if (e.message?.toLowerCase().includes("check-out")) {
+        toast.error("Không thể hủy vì thời gian đặt phòng đã kết thúc");
+      } else {
+        toast.error("Không thể hủy đặt phòng. Vui lòng thử lại.");
+      }
+    },
   });
 
   if (authLoading) return null;
