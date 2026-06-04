@@ -11,16 +11,14 @@ import { CalendarDays, MapPin, XCircle } from "lucide-react";
 import { Navigate, Link } from "react-router-dom";
 
 const STATUS_LABEL: Record<string, string> = {
+  pending: "Đang chờ xác nhận",
   confirmed: "Đã xác nhận",
-  cancelled: "Đã huỷ",
-  pending: "Đang chờ",
-  pending_confirmation: "Chờ admin xác nhận",
-  rejected: "Đã bị từ chối",
+  cancelled: "Đã hủy",
+  rejected: "Bị từ chối",
 };
 
 const STATUS_VARIANT: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
   confirmed: "default",
-  pending_confirmation: "secondary",
   pending: "secondary",
   cancelled: "outline",
   rejected: "destructive",
