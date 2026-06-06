@@ -56,30 +56,32 @@ const HotelDetail = () => {
   const ciStr = checkIn ? format(checkIn, "yyyy-MM-dd") : null;
   const coStr = checkOut ? format(checkOut, "yyyy-MM-dd") : null;
 
-  const { data: overlappingBookings } = useQuery({
-    queryKey: ["overlapping-bookings", id, ciStr, coStr, roomIds.length],
+  const { data: overlapCounts } = useQuery({
+    queryKey: ["room-overlap-counts", id, ciStr, coStr],
     queryFn: async () => {
-      if (!ciStr || !coStr || roomIds.length === 0) return [];
-      const { data } = await supabase
-        .from("bookings")
-        .select("room_id")
-        .in("room_id", roomIds)
-        .in("status", ["pending", "confirmed"])
-        .lt("check_in", coStr)
-        .gt("check_out", ciStr);
+      if (!ciStr || !coStr || !id) return [];
+      const { data, error } = await supabase.rpc("get_room_overlap_counts", {
+        p_hotel_id: id,
+        p_check_in: ciStr,
+        p_check_out: coStr,
+      });
+      if (error) {
+        console.error("overlap rpc error", error);
+        return [];
+      }
       return data || [];
     },
-    enabled: !!ciStr && !!coStr && roomIds.length > 0,
+    enabled: !!ciStr && !!coStr && !!id,
   });
 
   // Count overlapping bookings per room_id (each room row is a room type with `quantity` inventory)
   const overlapCountByRoom = useMemo(() => {
     const m = new Map<string, number>();
-    (overlappingBookings || []).forEach((b) => {
-      m.set(b.room_id, (m.get(b.room_id) || 0) + 1);
+    (overlapCounts || []).forEach((b: any) => {
+      m.set(b.room_id, Number(b.booked_count) || 0);
     });
     return m;
-  }, [overlappingBookings]);
+  }, [overlapCounts]);
 
   type RoomRow = NonNullable<typeof rooms>[number];
   const datesSelected = !!checkIn && !!checkOut;
