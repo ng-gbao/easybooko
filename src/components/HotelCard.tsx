@@ -69,7 +69,7 @@ const HotelCard = ({ hotel }: HotelCardProps) => {
           </button>
         )}
         <Badge className="absolute bottom-3 left-3 bg-primary/90 backdrop-blur-sm">
-          ${hotel.price_per_night}/đêm
+          {formatPrice(hotel.price_per_night)}/đêm
         </Badge>
       </div>
       <Link to={`/hotel/${hotel.id}`}>
@@ -96,7 +96,7 @@ const HotelCard = ({ hotel }: HotelCardProps) => {
           {hotel.amenities && hotel.amenities.length > 0 && (
             <div className="flex gap-1.5 mt-2 flex-wrap">
               {hotel.amenities.slice(0, 3).map((a) => (
-                <Badge key={a} variant="secondary" className="text-xs">{a}</Badge>
+                <Badge key={a} variant="secondary" className="text-xs">{formatAmenity(a, "compact")}</Badge>
               ))}
               {hotel.amenities.length > 3 && (
                 <Badge variant="secondary" className="text-xs">+{hotel.amenities.length - 3}</Badge>
