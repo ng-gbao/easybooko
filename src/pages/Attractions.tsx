@@ -2,6 +2,7 @@ import { Link, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Clock, MapPin, Sparkles, Ticket, Star, ShieldCheck } from "lucide-react";
+import { formatPrice } from "@/lib/utils";
 
 const FALLBACK_ATTRACTION = "https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=1600&q=80";
 const onImgErr = (e: React.SyntheticEvent<HTMLImageElement>) => { if (e.currentTarget.src !== FALLBACK_ATTRACTION) e.currentTarget.src = FALLBACK_ATTRACTION; };
@@ -118,7 +119,7 @@ const Attractions = () => {
         <aside className="lg:sticky lg:top-24 self-start">
           <div className="bg-card border rounded-xl p-6 shadow-sm">
             <div className="text-sm text-muted-foreground">Từ</div>
-            <div className="font-heading text-3xl font-bold text-primary mb-1">${attraction.price}</div>
+            <div className="font-heading text-3xl font-bold text-primary mb-1">{formatPrice(attraction.price)}</div>
             <div className="text-xs text-muted-foreground mb-5">mỗi người · đã bao gồm thuế</div>
 
             <Button className="w-full mb-3" size="lg">Đặt ngay</Button>
@@ -150,7 +151,7 @@ const Attractions = () => {
                 <div className="p-4">
                   <div className="text-xs text-muted-foreground mb-1">{a.city}</div>
                   <div className="font-heading font-semibold line-clamp-1 mb-1">{a.name}</div>
-                  <div className="text-sm text-muted-foreground">Từ <span className="text-primary font-bold">${a.price}</span></div>
+                  <div className="text-sm text-muted-foreground">Từ <span className="text-primary font-bold">{formatPrice(a.price)}</span></div>
                 </div>
               </Link>
             ))}

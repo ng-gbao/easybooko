@@ -11,6 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { CreditCard, Lock, CalendarDays, MapPin, ArrowLeft, ShieldCheck, QrCode, CheckCircle2 } from "lucide-react";
 import { format } from "date-fns";
+import { formatPrice } from "@/lib/utils";
 
 interface BookingState {
   hotelId: string;
@@ -116,7 +117,7 @@ const Payment = () => {
           user_id: user.id,
           booking_id: bookingRow.id,
           amount: booking.totalPrice,
-          currency: "USD",
+          currency: "VND",
           payment_method: methodValue,
           status: "pending",
           transaction_reference: txRef,
@@ -292,9 +293,9 @@ const Payment = () => {
                 <Separator />
 
                 <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">${booking.pricePerNight} × {booking.nights} đêm</span>
-                    <span>${booking.totalPrice}</span>
+                <div className="flex justify-between">
+                    <span className="text-muted-foreground">{formatPrice(booking.pricePerNight)} × {booking.nights} đêm</span>
+                    <span>{formatPrice(booking.totalPrice)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Thuế & phí</span>
@@ -306,7 +307,7 @@ const Payment = () => {
 
                 <div className="flex justify-between items-center">
                   <span className="font-heading font-bold text-lg">Tổng cộng</span>
-                  <span className="font-heading font-bold text-2xl text-primary">${booking.totalPrice}</span>
+                  <span className="font-heading font-bold text-2xl text-primary">{formatPrice(booking.totalPrice)}</span>
                 </div>
 
                 <Button className="w-full" size="lg" onClick={handlePayment} disabled={processing}>
@@ -319,7 +320,7 @@ const Payment = () => {
                     paymentMethod === "qr" ? (
                       <><CheckCircle2 className="h-4 w-4 mr-2" /> Tôi đã hoàn tất thanh toán</>
                     ) : (
-                      <><Lock className="h-4 w-4 mr-2" /> Thanh toán · ${booking.totalPrice}</>
+                      <><Lock className="h-4 w-4 mr-2" /> Thanh toán · {formatPrice(booking.totalPrice)}</>
                     )
                   )}
                 </Button>

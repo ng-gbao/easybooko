@@ -15,6 +15,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Hotel, BedDouble, BookOpen, Users, Shield, ShieldOff, CheckCircle2, XCircle, CreditCard } from "lucide-react";
 import { format } from "date-fns";
+import { formatPrice } from "@/lib/utils";
 
 const STATUS_LABEL: Record<string, string> = {
   pending: "Đang chờ xác nhận",
@@ -182,7 +183,7 @@ function HotelsTab() {
             <CardContent className="p-4 flex items-center justify-between">
               <div>
                 <h3 className="font-semibold">{h.name}</h3>
-                <p className="text-sm text-muted-foreground">{h.location} • ${h.price_per_night}/đêm • ⭐ {h.rating}</p>
+                <p className="text-sm text-muted-foreground">{h.location} • {formatPrice(h.price_per_night)}/đêm • ⭐ {h.rating}</p>
               </div>
               <div className="flex gap-2">
                 <Button variant="outline" size="icon" onClick={() => openEdit(h)} aria-label="Sửa"><Pencil className="h-4 w-4" /></Button>
@@ -292,7 +293,7 @@ function RoomsTab() {
             <TableRow key={r.id}>
               <TableCell>{(r.hotels as any)?.name}</TableCell>
               <TableCell className="capitalize">{r.type}</TableCell>
-              <TableCell>${r.price}</TableCell>
+              <TableCell>{formatPrice(r.price)}</TableCell>
               <TableCell>
                 <Button variant="outline" size="icon" className="text-destructive" onClick={() => deleteRoom.mutate(r.id)} aria-label="Xoá">
                   <Trash2 className="h-4 w-4" />
@@ -403,7 +404,7 @@ function BookingsTab() {
                 <TableCell>{b.hotels?.name}</TableCell>
                 <TableCell className="capitalize">{b.rooms?.type}</TableCell>
                 <TableCell>{format(new Date(b.check_in), "dd/MM")} – {format(new Date(b.check_out), "dd/MM/yyyy")}</TableCell>
-                <TableCell>${b.total_price}</TableCell>
+                <TableCell>{formatPrice(b.total_price)}</TableCell>
                 <TableCell className="uppercase text-xs">{payment?.payment_method || "—"}</TableCell>
                 <TableCell><Badge variant={STATUS_VARIANT[b.status] || "secondary"}>{STATUS_LABEL[b.status] || b.status}</Badge></TableCell>
                 <TableCell className="text-right">
@@ -520,7 +521,7 @@ function PaymentsTab() {
                 <div className="text-xs text-muted-foreground capitalize">{p._booking?.rooms?.type}</div>
               </TableCell>
               <TableCell className="text-xs font-mono">{p.transaction_reference}</TableCell>
-              <TableCell>${p.amount}</TableCell>
+              <TableCell>{formatPrice(p.amount)}</TableCell>
               <TableCell className="uppercase text-xs">{p.payment_method}</TableCell>
               <TableCell><Badge variant={STATUS_VARIANT[p.status] || "secondary"}>{STATUS_LABEL[p.status] || p.status}</Badge></TableCell>
               <TableCell className="text-right">

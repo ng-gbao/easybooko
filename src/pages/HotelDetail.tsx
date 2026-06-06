@@ -13,7 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { Star, MapPin, Wifi, Car, Coffee, Waves, CalendarIcon, Users } from "lucide-react";
 import { format, differenceInDays } from "date-fns";
-import { cn } from "@/lib/utils";
+import { cn, formatPrice, formatAmenity } from "@/lib/utils";
 
 const amenityIcons: Record<string, React.ReactNode> = {
   wifi: <Wifi className="h-4 w-4" />,
@@ -210,7 +210,7 @@ const HotelDetail = () => {
               <div className="flex flex-wrap gap-3">
                 {hotel.amenities.map((a) => (
                   <Badge key={a} variant="secondary" className="px-3 py-1.5 text-sm gap-1.5">
-                    {amenityIcons[a.toLowerCase()] || null} {a}
+                    {amenityIcons[a.toLowerCase()] || null} {formatAmenity(a, "full")}
                   </Badge>
                 ))}
               </div>
@@ -273,7 +273,7 @@ const HotelDetail = () => {
                             {availLabel}
                           </div>
                           <p className="text-sm text-muted-foreground">
-                            ${room.price}/đêm
+                            {formatPrice(room.price)}/đêm
                             {!datesSelected && ` · ${quantity} phòng tổng`}
                           </p>
                         </div>
@@ -368,11 +368,11 @@ const HotelDetail = () => {
                 <div className="bg-muted rounded-lg p-4 space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="capitalize">Phòng {selectedRoomData.type} × {nights} đêm</span>
-                    <span>${totalPrice}</span>
+                    <span>{formatPrice(totalPrice)}</span>
                   </div>
                   <div className="flex justify-between font-semibold border-t pt-2">
                     <span>Tổng cộng</span>
-                    <span className="text-primary text-lg">${totalPrice}</span>
+                    <span className="text-primary text-lg">{formatPrice(totalPrice)}</span>
                   </div>
                 </div>
               )}

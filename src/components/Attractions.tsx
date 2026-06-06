@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { formatPrice } from "@/lib/utils";
 
 const FALLBACK_ATTRACTION = "https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=800&q=80";
 
@@ -31,7 +32,7 @@ const Attractions = () => (
             <div className="p-4">
               <div className="text-xs text-muted-foreground mb-1">{a.city}</div>
               <h3 className="font-heading font-semibold mb-2 line-clamp-1">{a.name}</h3>
-              <div className="text-sm text-muted-foreground">Từ <span className="text-primary font-bold text-base">${a.price}</span></div>
+              <div className="text-sm text-muted-foreground">Từ <span className="text-primary font-bold text-base">{formatPrice(a.price)}</span></div>
             </div>
           </Link>
         ))}
