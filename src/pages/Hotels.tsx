@@ -292,9 +292,21 @@ const FilterPanel = ({
 
     <div>
       <Label className="text-sm font-medium mb-3 block">
-        Giá: ${priceRange[0]} – ${priceRange[1]}
+        Khoảng giá: ${priceRange[0]} – ${priceRange[1]}{priceRange[1] >= 1000 ? "+" : ""}
       </Label>
-      <Slider value={priceRange} onValueChange={setPriceRange} min={0} max={1000} step={25} />
+      <Slider
+        value={priceRange}
+        onValueChange={setPriceRange}
+        min={0}
+        max={1000}
+        step={25}
+        minStepsBetweenThumbs={1}
+        className="mt-2"
+      />
+      <div className="flex justify-between text-xs text-muted-foreground mt-2">
+        <span>$0</span>
+        <span>$1000+</span>
+      </div>
     </div>
 
     <div>
