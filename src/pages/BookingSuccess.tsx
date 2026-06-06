@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle2, CalendarDays, Home } from "lucide-react";
 import { format } from "date-fns";
+import { formatPrice } from "@/lib/utils";
 
 interface SuccessState {
   hotelName: string;
@@ -65,7 +66,7 @@ const BookingSuccess = () => {
             </div>
             <div className="flex justify-between text-sm border-t pt-3">
               <span className="font-semibold">{pending ? "Tổng cộng (chờ xác nhận)" : "Đã thanh toán"}</span>
-              <span className="font-bold text-primary text-lg">${data.totalPrice}</span>
+              <span className="font-bold text-primary text-lg">{formatPrice(data.totalPrice)}</span>
             </div>
           </div>
 

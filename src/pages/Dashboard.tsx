@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { CalendarDays, MapPin, XCircle } from "lucide-react";
 import { Navigate, Link } from "react-router-dom";
+import { formatPrice } from "@/lib/utils";
 
 const STATUS_LABEL: Record<string, string> = {
   pending: "Đang chờ xác nhận",
@@ -112,7 +113,7 @@ const Dashboard = () => {
                     </div>
                     <div className="flex items-center gap-4">
                       <div className="text-right">
-                        <p className="text-2xl font-bold text-primary">${b.total_price}</p>
+                        <p className="text-2xl font-bold text-primary">{formatPrice(b.total_price)}</p>
                         <p className="text-xs text-muted-foreground">tổng cộng</p>
                       </div>
                       {(() => {

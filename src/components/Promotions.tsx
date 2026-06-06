@@ -5,7 +5,7 @@ const promos = [
     icon: Gift,
     tag: "Khách mới",
     title: "Giảm 25% cho lần đặt phòng đầu tiên",
-    desc: "Dùng mã WELCOME25 khi thanh toán. Áp dụng cho phòng từ $80 trở lên.",
+    desc: "Dùng mã WELCOME25 khi thanh toán. Áp dụng cho phòng từ 80.000đ trở lên.",
     // Warm amber → rose gradient for new-user promo
     bg: "from-amber-500 via-orange-500 to-rose-500",
     glow: "shadow-amber-500/30",

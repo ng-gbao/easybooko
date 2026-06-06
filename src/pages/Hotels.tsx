@@ -14,6 +14,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Star, SlidersHorizontal, X, Wifi, Car, Coffee, Waves, Snowflake } from "lucide-react";
+import { formatPrice } from "@/lib/utils";
 
 
 const AMENITY_OPTIONS = [
@@ -21,7 +22,7 @@ const AMENITY_OPTIONS = [
   { key: "breakfast", label: "Bữa sáng", icon: Coffee },
   { key: "parking", label: "Bãi đỗ xe", icon: Car },
   { key: "pool", label: "Hồ bơi", icon: Waves },
-  { key: "air_conditioner", label: "Máy lạnh", icon: Snowflake },
+  { key: "air_conditioner", label: "Air Conditioner", icon: Snowflake },
 ];
 const ROOM_TYPES = ["single", "double", "suite", "deluxe", "family"];
 const ROOM_TYPE_LABELS: Record<string, string> = {
@@ -112,7 +113,7 @@ const Hotels = () => {
   // Active filter chips
   const activeChips = useMemo(() => {
     const chips: { label: string; clear: () => void }[] = [];
-    if (priceRange[0] > 0 || priceRange[1] < 1000) chips.push({ label: `$${priceRange[0]}–$${priceRange[1]}`, clear: () => setPriceRange([0, 1000]) });
+    if (priceRange[0] > 0 || priceRange[1] < 1000) chips.push({ label: `${formatPrice(priceRange[0])}–${formatPrice(priceRange[1])}`, clear: () => setPriceRange([0, 1000]) });
     if (starRating) chips.push({ label: `Khách sạn ${starRating}★`, clear: () => setStarRating(undefined) });
     if (minReviewScore) chips.push({ label: `Điểm ${minReviewScore}+`, clear: () => setMinReviewScore(undefined) });
     if (roomType) chips.push({ label: `Phòng: ${ROOM_TYPE_LABELS[roomType] || roomType}`, clear: () => setRoomType(undefined) });
@@ -292,7 +293,7 @@ const FilterPanel = ({
 
     <div>
       <Label className="text-sm font-medium mb-3 block">
-        Khoảng giá: ${priceRange[0]} – ${priceRange[1]}{priceRange[1] >= 1000 ? "+" : ""}
+        Khoảng giá: {formatPrice(priceRange[0])} – {formatPrice(priceRange[1])}{priceRange[1] >= 1000 ? "+" : ""}
       </Label>
       <Slider
         value={priceRange}
@@ -304,8 +305,8 @@ const FilterPanel = ({
         className="mt-2"
       />
       <div className="flex justify-between text-xs text-muted-foreground mt-2">
-        <span>$0</span>
-        <span>$1000+</span>
+        <span>0đ</span>
+        <span>1.000.000đ+</span>
       </div>
     </div>
 
