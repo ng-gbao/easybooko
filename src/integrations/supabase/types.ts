@@ -273,6 +273,13 @@ export type Database = {
         Args: { p_booking_id: string; p_payment_id: string }
         Returns: undefined
       }
+      get_room_overlap_counts: {
+        Args: { p_check_in: string; p_check_out: string; p_hotel_id: string }
+        Returns: {
+          booked_count: number
+          room_id: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
