@@ -293,7 +293,7 @@ const FilterPanel = ({
 
     <div>
       <Label className="text-sm font-medium mb-3 block">
-        Khoảng giá: {formatPrice(priceRange[0])} – {formatPrice(priceRange[1])}{priceRange[1] >= 15000000 ? "+" : ""}
+        Khoảng giá: {formatPrice(priceRange[0])} – {formatPrice(priceRange[1])}{priceRange[1] >= 5000000 ? "+" : ""}
       </Label>
       <Slider
         value={priceRange}
