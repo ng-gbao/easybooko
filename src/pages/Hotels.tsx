@@ -45,7 +45,7 @@ const Hotels = () => {
   const roomsCount = Number(searchParams.get("rooms")) || 1;
 
   // Filters
-  const [priceRange, setPriceRange] = useState([300000, 15000000]);
+  const [priceRange, setPriceRange] = useState([300000, 5000000]);
   const [minRating, setMinRating] = useState<number | undefined>();
   const [propertyType, setPropertyType] = useState<PropertyType | undefined>(
     (searchParams.get("type") as PropertyType | null) || undefined
