@@ -113,7 +113,7 @@ const Hotels = () => {
   // Active filter chips
   const activeChips = useMemo(() => {
     const chips: { label: string; clear: () => void }[] = [];
-    if (priceRange[0] > 300000 || priceRange[1] < 15000000) chips.push({ label: `${formatPrice(priceRange[0])}–${formatPrice(priceRange[1])}`, clear: () => setPriceRange([300000, 15000000]) });
+    if (priceRange[0] > 300000 || priceRange[1] < 5000000) chips.push({ label: `${formatPrice(priceRange[0])}–${formatPrice(priceRange[1])}`, clear: () => setPriceRange([300000, 5000000]) });
     if (starRating) chips.push({ label: `Khách sạn ${starRating}★`, clear: () => setStarRating(undefined) });
     if (minReviewScore) chips.push({ label: `Điểm ${minReviewScore}+`, clear: () => setMinReviewScore(undefined) });
     if (roomType) chips.push({ label: `Phòng: ${ROOM_TYPE_LABELS[roomType] || roomType}`, clear: () => setRoomType(undefined) });
