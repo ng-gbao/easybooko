@@ -45,7 +45,7 @@ const Hotels = () => {
   const roomsCount = Number(searchParams.get("rooms")) || 1;
 
   // Filters
-  const [priceRange, setPriceRange] = useState([0, 1000]);
+  const [priceRange, setPriceRange] = useState([300000, 15000000]);
   const [minRating, setMinRating] = useState<number | undefined>();
   const [propertyType, setPropertyType] = useState<PropertyType | undefined>(
     (searchParams.get("type") as PropertyType | null) || undefined
@@ -80,8 +80,8 @@ const Hotels = () => {
 
   const { data, isLoading } = useHotels({
     location,
-    minPrice: priceRange[0] > 0 ? priceRange[0] : undefined,
-    maxPrice: priceRange[1] < 1000 ? priceRange[1] : undefined,
+    minPrice: priceRange[0] > 300000 ? priceRange[0] : undefined,
+    maxPrice: priceRange[1] < 15000000 ? priceRange[1] : undefined,
     minRating: effectiveMinRating,
     propertyType,
     amenities: amenities.length > 0 ? amenities : undefined,
@@ -100,7 +100,7 @@ const Hotels = () => {
   };
 
   const clearAllFilters = () => {
-    setPriceRange([0, 1000]);
+    setPriceRange([300000, 15000000]);
     setMinRating(undefined);
     setStarRating(undefined);
     setRoomType(undefined);
@@ -113,7 +113,7 @@ const Hotels = () => {
   // Active filter chips
   const activeChips = useMemo(() => {
     const chips: { label: string; clear: () => void }[] = [];
-    if (priceRange[0] > 0 || priceRange[1] < 1000) chips.push({ label: `${formatPrice(priceRange[0])}–${formatPrice(priceRange[1])}`, clear: () => setPriceRange([0, 1000]) });
+    if (priceRange[0] > 300000 || priceRange[1] < 15000000) chips.push({ label: `${formatPrice(priceRange[0])}–${formatPrice(priceRange[1])}`, clear: () => setPriceRange([300000, 15000000]) });
     if (starRating) chips.push({ label: `Khách sạn ${starRating}★`, clear: () => setStarRating(undefined) });
     if (minReviewScore) chips.push({ label: `Điểm ${minReviewScore}+`, clear: () => setMinReviewScore(undefined) });
     if (roomType) chips.push({ label: `Phòng: ${ROOM_TYPE_LABELS[roomType] || roomType}`, clear: () => setRoomType(undefined) });
@@ -293,20 +293,20 @@ const FilterPanel = ({
 
     <div>
       <Label className="text-sm font-medium mb-3 block">
-        Khoảng giá: {formatPrice(priceRange[0])} – {formatPrice(priceRange[1])}{priceRange[1] >= 1000 ? "+" : ""}
+        Khoảng giá: {formatPrice(priceRange[0])} – {formatPrice(priceRange[1])}{priceRange[1] >= 15000000 ? "+" : ""}
       </Label>
       <Slider
         value={priceRange}
         onValueChange={setPriceRange}
-        min={0}
-        max={1000}
-        step={25}
+        min={300000}
+        max={15000000}
+        step={100000}
         minStepsBetweenThumbs={1}
         className="mt-2"
       />
       <div className="flex justify-between text-xs text-muted-foreground mt-2">
-        <span>0đ</span>
-        <span>1.000.000đ+</span>
+        <span>300.000đ</span>
+        <span>15.000.000đ+</span>
       </div>
     </div>
 

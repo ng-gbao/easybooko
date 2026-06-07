@@ -69,7 +69,7 @@ const HotelCard = ({ hotel }: HotelCardProps) => {
           </button>
         )}
         <Badge className="absolute bottom-3 left-3 bg-primary/90 backdrop-blur-sm">
-          {formatPrice(hotel.price_per_night)}/đêm
+          Từ {formatPrice(hotel.price_per_night)} / đêm
         </Badge>
       </div>
       <Link to={`/hotel/${hotel.id}`}>
