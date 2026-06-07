@@ -306,7 +306,7 @@ const FilterPanel = ({
       />
       <div className="flex justify-between text-xs text-muted-foreground mt-2">
         <span>300.000đ</span>
-        <span>15.000.000đ+</span>
+        <span>5.000.000đ+</span>
       </div>
     </div>
 
