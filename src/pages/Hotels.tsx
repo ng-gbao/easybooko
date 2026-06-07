@@ -81,7 +81,7 @@ const Hotels = () => {
   const { data, isLoading } = useHotels({
     location,
     minPrice: priceRange[0] > 300000 ? priceRange[0] : undefined,
-    maxPrice: priceRange[1] < 15000000 ? priceRange[1] : undefined,
+    maxPrice: priceRange[1] < 5000000 ? priceRange[1] : undefined,
     minRating: effectiveMinRating,
     propertyType,
     amenities: amenities.length > 0 ? amenities : undefined,
