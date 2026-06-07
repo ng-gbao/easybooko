@@ -100,7 +100,7 @@ const Hotels = () => {
   };
 
   const clearAllFilters = () => {
-    setPriceRange([300000, 15000000]);
+    setPriceRange([300000, 5000000]);
     setMinRating(undefined);
     setStarRating(undefined);
     setRoomType(undefined);
