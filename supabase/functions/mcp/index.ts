@@ -156,9 +156,9 @@ var check_room_availability_default = defineTool3({
     if (!rooms?.length)
       return { content: [{ type: "text", text: "No rooms found for that hotel." }], isError: true };
     const { data: counts, error: rpcError } = await supabase.rpc("get_room_overlap_counts", {
-      _hotel_id: hotel_id,
-      _check_in: check_in,
-      _check_out: check_out
+      p_hotel_id: hotel_id,
+      p_check_in: check_in,
+      p_check_out: check_out
     });
     if (rpcError) return { content: [{ type: "text", text: rpcError.message }], isError: true };
     const booked = /* @__PURE__ */ new Map();
