@@ -22,6 +22,7 @@ import Attractions from "@/pages/Attractions";
 import NotFound from "@/pages/NotFound";
 import TravelExperiences from "@/pages/TravelExperiences";
 import TravelGuidePage from "@/pages/TravelGuide";
+import OAuthConsent from "@/pages/OAuthConsent";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -65,6 +66,7 @@ const App = () => (
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/wishlist" element={<Wishlist />} />
                   <Route path="/admin" element={<Admin />} />
+                  <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </main>
